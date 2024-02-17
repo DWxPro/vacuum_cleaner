@@ -12,6 +12,7 @@ def generate_launch_description():
     package_name = 'vacuum_cleaner'
     urdf_name = 'robot.urdf.xacro'
     urdf_mappings = {'sim_mode': "false"}
+    slam_file_name = 'slam.yaml'
     rviz_file_name = 'presettings.rviz'
     controller_settings_file_name = 'diffbot_controllers.yaml'
 
@@ -20,6 +21,7 @@ def generate_launch_description():
     robot_description = xacro.process_file(os.path.join(path_package_share,'description',urdf_name), mappings = urdf_mappings).toxml()
     controller_settings = os.path.join(path_package_share,'config',controller_settings_file_name)
     rviz_settings = os.path.join(path_package_share,'config',rviz_file_name)
+    slam_settings = os.path.join(path_package_share,'config',slam_file_name)
 
     # controller_manager
     control_node = Node(
@@ -52,6 +54,14 @@ def generate_launch_description():
         remappings=[("/vacuum_cleaner_controller/cmd_vel_unstamped", "/cmd_vel")]
     )
 
+    # slam_toolbox
+    slam_toolbox_node = Node(
+        parameters=[{'params_file': slam_settings,'use_sim_time': True}],
+        package='slam_toolbox',
+        executable='async_slam_toolbox_node',
+        name='slam_toolbox',
+        output='screen')
+    
     # visualize robot
     rviz_node = Node(
         package="rviz2",
@@ -84,6 +94,7 @@ def generate_launch_description():
     ld.add_action(robot_state_publisher_node)
     ld.add_action(joint_state_broadcaster_spawner)
     ld.add_action(delay_rviz)
+    ld.add_action(slam_toolbox_node)
     ld.add_action(delay_robot_controller_spawner)
 
     return ld
