@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:property name="distance_sensor_radius" value="0.015"/>
+    <xacro:property name="distance_sensor_thickness" value="0.001"/>
+    <xacro:property name="distance_sensor_mass" value="0.1"/>
+    <xacro:property name="distance_sensor_color" value="black"/>
+
+    <!-- DISTANCE SENSOR LEFT LINK -->
+
+    <xacro:property name="distance_sensor_left_angle" value="35"/>
+ 
+    <joint name="distance_sensor_left_joint" type="fixed">
+        <parent link="chassis"/>
+        <child link="distance_sensor_left"/>
+        <origin xyz="${chassis_radius * cos( radians( distance_sensor_left_angle ) )} 
+                     ${chassis_radius * sin( radians( distance_sensor_left_angle ) )}
+                     0"
+                rpy="0 0 ${radians( distance_sensor_left_angle )}"/>
+    </joint>
+
+    <link name="distance_sensor_left">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -${pi/2} 0"/>
+            <geometry>
+                <cylinder radius="${distance_sensor_radius}" length="${distance_sensor_thickness}"/>
+            </geometry>
+            <material name="${distance_sensor_color}"/>
+        </visual>
+    </link>
+
+    <!-- DISTANCE SENSOR FRONT LINK -->
+
+    <xacro:property name="distance_sensor_front_angle" value="0"/>
+ 
+    <joint name="distance_sensor_front_joint" type="fixed">
+        <parent link="chassis"/>
+        <child link="distance_sensor_front"/>
+        <origin xyz="${chassis_radius * cos( radians( distance_sensor_front_angle ) )} 
+                     ${chassis_radius * sin( radians( distance_sensor_front_angle ) )}
+                     0"
+                rpy="0 0 ${radians( distance_sensor_front_angle )}"/>
+    </joint>
+
+    <link name="distance_sensor_front">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -${pi/2} 0"/>
+            <geometry>
+                <cylinder radius="${distance_sensor_radius}" length="${distance_sensor_thickness}"/>
+            </geometry>
+            <material name="${distance_sensor_color}"/>
+        </visual>
+    </link>
+
+    <!-- DISTANCE SENSOR RIGHT LINK -->
+
+    <xacro:property name="distance_sensor_right_angle" value="-35"/>
+ 
+    <joint name="distance_sensor_right_joint" type="fixed">
+        <parent link="chassis"/>
+        <child link="distance_sensor_right"/>
+        <origin xyz="${chassis_radius * cos( radians( distance_sensor_right_angle ) )} 
+                     ${chassis_radius * sin( radians( distance_sensor_right_angle ) )}
+                     0"
+                rpy="0 0 ${radians( distance_sensor_right_angle )}"/>
+    </joint>
+
+    <link name="distance_sensor_right">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -${pi/2} 0"/>
+            <geometry>
+                <cylinder radius="${distance_sensor_radius}" length="${distance_sensor_thickness}"/>
+            </geometry>
+            <material name="${distance_sensor_color}"/>
+        </visual>
+    </link>
+
+</robot>

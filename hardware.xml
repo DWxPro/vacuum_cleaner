@@ -1,0 +1,9 @@
+<library path="vacuum_cleaner">
+  <class name="vacuum_cleaner/VacuumCleanerHardware"
+         type="vacuum_cleaner::VacuumCleanerHardware"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      robot vacuum cleaner using a system hardware interface-type. It uses velocity command and position state interface. 
+    </description>
+  </class>
+</library>

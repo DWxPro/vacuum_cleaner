@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+    <!-- Lidar -->
+    <xacro:property name="lidar_radius" value="0.035"/>
+    <xacro:property name="lidar_thickness" value="0.024"/>
+    <xacro:property name="lidar_mass" value="0.19"/>
+    <xacro:property name="lidar_color" value="blue"/>
+
+    <xacro:property name="lidar_offset_z" value="0.046 "/>
+
+    <joint name="lidar_joint" type="fixed">
+        <parent link="chassis"/>
+        <child link="lidar_frame"/>
+        <origin xyz="0 0 ${chassis_thickness/2 + lidar_offset_z}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="lidar_frame">
+        <visual>
+            <geometry>
+                <cylinder radius="${lidar_radius}" length="${lidar_thickness}"/>
+            </geometry>
+            <material name="${lidar_color}"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${lidar_radius}" length="${lidar_thickness}"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_cylinder mass="${lidar_mass}" radius="${lidar_radius}" length="${lidar_thickness}">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_cylinder>
+    </link>
+
+    <!-- BRACKET -->
+    <xacro:property name="lidar_bracket_length" value="0.095"/>
+    <xacro:property name="lidar_bracket_width" value="0.070"/>
+    <xacro:property name="lidar_bracket_height" value="0.034"/>
+    <xacro:property name="lidar_bracket_mass" value="0.020"/>
+    <xacro:property name="lidar_bracket_color" value="white"/>
+
+    <joint name="lidar_bracket_joint" type="fixed">
+        <parent link="chassis"/>
+        <child link="lidar_bracket_frame"/>
+        <origin xyz="${-(lidar_bracket_length/2 - lidar_radius)} 0 ${chassis_thickness/2 + lidar_bracket_height/2}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="lidar_bracket_frame">
+        <visual>
+            <geometry>
+                <box size="${lidar_bracket_length} ${lidar_bracket_width} ${lidar_bracket_height}"/>
+            </geometry>
+            <material name="${lidar_bracket_color}"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${lidar_bracket_length} ${lidar_bracket_width} ${lidar_bracket_height}"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_box mass="${lidar_bracket_mass}" x="${lidar_bracket_length}" y="${lidar_bracket_width}" z="${lidar_bracket_height}">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    </link>
+
+
+</robot>

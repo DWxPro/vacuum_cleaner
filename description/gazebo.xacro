@@ -1,0 +1,244 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:if value="$(arg sim_mode)">
+
+        <!-- REFERENCES -->
+        <gazebo reference="chassis">
+            <material>Gazebo/White</material>
+        </gazebo>
+
+        <gazebo reference="left_wheel">
+            <material>Gazebo/Blue</material>
+        </gazebo>
+
+        <gazebo reference="right_wheel">
+            <material>Gazebo/Blue</material>
+        </gazebo>
+
+        <gazebo reference="caster_wheel">
+            <material>Gazebo/Black</material>
+            <mu1 value="0.001"/>
+            <mu2 value="0.001"/>
+        </gazebo>
+
+        
+        <!-- DISTANCE SENSORS -->
+
+        <xacro:property name="horizontal_samples" value="10"/>
+        <xacro:property name="horizontal_resolution" value="1"/>
+        <xacro:property name="horizontal_min_angle" value="-1"/>
+        <xacro:property name="horizontal_max_angle" value="1"/>
+        
+        <xacro:property name="vertical_samples" value="10"/>
+        <xacro:property name="vertical_resolution" value="1"/>
+
+        <xacro:property name="range_min" value="0.001"/>
+        <xacro:property name="range_max" value="0.07"/>
+        <xacro:property name="range_resolution" value="0.01"/>
+
+        <xacro:property name="front_vertical_min_angle" value="-0.3"/>
+        <xacro:property name="front_vertical_max_angle" value="0.3"/>
+    
+        <xacro:property name="left_vertical_min_angle" value="-0.2"/>
+        <xacro:property name="left_vertical_max_angle" value="0.2"/>
+    
+        <xacro:property name="right_vertical_min_angle" value="-0.2"/>
+        <xacro:property name="right_vertical_max_angle" value="0.2"/>
+    
+        <!-- front -->
+        <gazebo reference="distance_sensor_front">
+            <material>Gazebo/Black</material>
+            <pose>0 0 0 0 0 0</pose>
+
+            <sensor name="range_sensor_frotn" type="ray">
+                <always_on>true</always_on>
+                <visualize>true</visualize>
+                <update_rate>30</update_rate>
+
+                <ray>
+                    <scan>
+                        <horizontal>
+                            <samples>${horizontal_samples}</samples>
+                            <resolution>${horizontal_resolution}</resolution>
+                            <min_angle>${horizontal_min_angle}</min_angle>
+                            <max_angle>${horizontal_max_angle}</max_angle>
+                        </horizontal>
+                        <vertical>
+                            <samples>${vertical_samples}</samples>
+                            <resolution>${vertical_resolution}</resolution>
+                            <min_angle>${front_vertical_min_angle}</min_angle>
+                            <max_angle>${front_vertical_max_angle}</max_angle>
+                        </vertical>
+                    </scan>
+                    <range>
+                        <min>${range_min}</min>
+                        <max>${range_max}</max>
+                        <resolution>${range_resolution}</resolution>
+                    </range>
+                    <noise>
+                        <type>gaussian</type>
+                        <mean>0.0</mean>
+                        <stddev>0.01</stddev>
+                    </noise>
+                </ray>
+
+                <plugin name="range_sensor_front" filename="libgazebo_ros_ray_sensor.so">
+                    <ros>
+                        <namespace>/bumper/distance</namespace>
+                        <remapping>~/out:=front</remapping>
+                    </ros>
+                    <output_type>sensor_msgs/Range</output_type>
+                    <radiation_type>infrared</radiation_type>
+                    <frame_name>distance_sensor_front</frame_name>
+                </plugin>
+
+            </sensor>  
+        </gazebo>
+
+        <!-- left -->
+        <gazebo reference="distance_sensor_left">
+            <material>Gazebo/Black</material>
+            <pose>0 0 0 0 0 0</pose>
+
+            <sensor name="range_sensor_left" type="ray">
+                <always_on>true</always_on>
+                <visualize>true</visualize>
+                <update_rate>30</update_rate>
+
+                <ray>
+                    <scan>
+                        <horizontal>
+                            <samples>${horizontal_samples}</samples>
+                            <resolution>${horizontal_resolution}</resolution>
+                            <min_angle>${horizontal_min_angle}</min_angle>
+                            <max_angle>${horizontal_max_angle}</max_angle>
+                        </horizontal>
+                        <vertical>
+                            <samples>${vertical_samples}</samples>
+                            <resolution>${vertical_resolution}</resolution>
+                            <min_angle>${left_vertical_min_angle}</min_angle>
+                            <max_angle>${left_vertical_max_angle}</max_angle>
+                        </vertical>
+                    </scan>
+                    <range>
+                        <min>${range_min}</min>
+                        <max>${range_max}</max>
+                        <resolution>${range_resolution}</resolution>
+                    </range>
+                    <noise>
+                        <type>gaussian</type>
+                        <mean>0.0</mean>
+                        <stddev>0.01</stddev>
+                    </noise>
+                </ray>
+
+                <plugin name="range_sensor_left" filename="libgazebo_ros_ray_sensor.so">
+                    <ros>
+                        <namespace>/bumper/distance</namespace>
+                        <remapping>~/out:=left</remapping>
+                    </ros>
+                    <output_type>sensor_msgs/Range</output_type>
+                    <radiation_type>infrared</radiation_type>
+                    <frame_name>distance_sensor_left</frame_name>
+                </plugin>
+
+            </sensor>  
+        </gazebo>
+
+        <!-- right -->
+        <xacro:property name="right_vertical_min_angle" value="-0.2"/>
+        <xacro:property name="right_vertical_max_angle" value="0.2"/>
+        <xacro:property name="right_horizontal_min_angle" value="-1"/>
+        <xacro:property name="right_horizontal_max_angle" value="1"/>
+
+        <gazebo reference="distance_sensor_right">
+            <material>Gazebo/Black</material>
+            <pose>0 0 0 0 0 0</pose>
+
+            <sensor name="range_sensor_right" type="ray">
+                <always_on>true</always_on>
+                <visualize>true</visualize>
+                <update_rate>30</update_rate>
+
+                <ray>
+                    <scan>
+                        <horizontal>
+                            <samples>${horizontal_samples}</samples>
+                            <resolution>${horizontal_resolution}</resolution>
+                            <min_angle>${horizontal_min_angle}</min_angle>
+                            <max_angle>${horizontal_max_angle}</max_angle>
+                        </horizontal>
+                        <vertical>
+                            <samples>${vertical_samples}</samples>
+                            <resolution>${vertical_resolution}</resolution>
+                            <min_angle>${right_vertical_min_angle}</min_angle>
+                            <max_angle>${right_vertical_max_angle}</max_angle>
+                        </vertical>
+                    </scan>
+                    <range>
+                        <min>${range_min}</min>
+                        <max>${range_max}</max>
+                        <resolution>${range_resolution}</resolution>
+                    </range>
+                    <noise>
+                        <type>gaussian</type>
+                        <mean>0.0</mean>
+                        <stddev>0.01</stddev>
+                    </noise>
+                </ray>
+
+                <plugin name="range_sensor_right" filename="libgazebo_ros_ray_sensor.so">
+                    <ros>
+                        <namespace>/bumper/distance</namespace>
+                        <remapping>~/out:=right</remapping>
+                    </ros>
+                    <output_type>sensor_msgs/Range</output_type>
+                    <radiation_type>infrared</radiation_type>
+                    <frame_name>distance_sensor_right</frame_name>
+                </plugin>
+
+            </sensor>  
+        </gazebo>
+
+
+        <!-- Lidar -->
+        <gazebo reference="lidar_frame">
+            <material>Gazebo/Red</material>
+
+            <sensor name="laser" type="ray">
+                <pose> 0 0 0 0 0 0 </pose>
+                <visualize>true</visualize>
+                <update_rate>10</update_rate>
+                <ray>
+                    <scan>
+                        <horizontal>
+                            <samples>360</samples>
+                            <min_angle>-3.14</min_angle>
+                            <max_angle>3.14</max_angle>
+                        </horizontal>
+                    </scan>
+                    <range>
+                        <min>0.15</min>
+                        <max>6</max>
+                    </range>
+                </ray>
+                <plugin name="lidar_controller" filename="libgazebo_ros_ray_sensor.so">
+                    <ros>
+                        <argument>~/out:=scan</argument>
+                    </ros>
+                    <output_type>sensor_msgs/LaserScan</output_type>
+                    <frame_name>lidar_frame</frame_name>
+                </plugin>
+            </sensor>
+        </gazebo>
+
+        <!-- ros2_control -->
+        <gazebo>
+            <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+                <parameters>$(find vacuum_cleaner)/config/diffbot_controllers.yaml</parameters>
+                <parameters>$(find vacuum_cleaner)/config/use_sim_time.yaml</parameters>
+            </plugin>
+        </gazebo>
+
+  </xacro:if>
+</robot>
