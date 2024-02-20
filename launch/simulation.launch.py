@@ -47,8 +47,7 @@ def generate_launch_description():
         package='robot_state_publisher',
         executable='robot_state_publisher',
         output='screen',
-        parameters=[{'robot_description': robot_description, 'use_sim_time': True}],
-        remappings=[("/vacuum_cleaner_controller/cmd_vel_unstamped", "/cmd_vel")]
+        parameters=[{'robot_description': robot_description, 'use_sim_time': True}]
     )
 
     # visualize robot
@@ -88,7 +87,6 @@ def generate_launch_description():
         default_value= world_settings,
         description='Full path to the world model file to load')
     
-
     # create launch description
     ld = LaunchDescription()
     
@@ -98,7 +96,7 @@ def generate_launch_description():
     ld.add_action(spawn_entity_node)
     ld.add_action(diffbot_base_controller_node)
     ld.add_action(joint_state_broadcaster_node)
-    ld.add_action(slam_toolbox_node)    
+    ld.add_action(slam_toolbox_node)
     ld.add_action(rviz_node)
 
     return ld
