@@ -14,8 +14,11 @@ def generate_launch_description():
     urdf_name = 'robot.urdf.xacro'
     urdf_mappings = {'sim_mode': "true"}
     world_file_name = 'my_world.world'
-    slam_file_name = 'slam.yaml'
+    slam_mapping_file_name = 'slam_mapping.yaml'
+    #slam_localization_file_name = 'slam_localization.yaml'
+    #slam_mapping = False
     rviz_file_name = 'presettings.rviz'
+    joystick_file_name = 'joystick.yaml'
 
     path_package_share = FindPackageShare(package=package_name).find(package_name)
     path_gazebo_ros_share = FindPackageShare(package='gazebo_ros').find('gazebo_ros')
@@ -23,7 +26,11 @@ def generate_launch_description():
     robot_description = xacro.process_file(os.path.join(path_package_share,'description',urdf_name), mappings = urdf_mappings).toxml()
     world_settings = os.path.join(path_package_share, 'worlds', world_file_name)
     rviz_settings = os.path.join(path_package_share,'config',rviz_file_name)
-    slam_settings = os.path.join(path_package_share,'config',slam_file_name)
+    #if slam_mapping:
+    slam_settings = os.path.join(path_package_share,'config',slam_mapping_file_name)
+    #else:
+    #   slam_settings = os.path.join(path_package_share,'config',slam_localization_file_name)
+    joystick_settings = os.path.join(path_package_share ,'config',joystick_file_name)
 
     # controller_manager
     # running inside gazebo
@@ -87,6 +94,22 @@ def generate_launch_description():
         default_value= world_settings,
         description='Full path to the world model file to load')
     
+    # joystick
+    joystick_node = Node(
+            package='joy',
+            executable='joy_node',
+            parameters=[joystick_settings, {'use_sim_time': True}],
+         )
+
+    teleop_twist_joy_node = Node(
+            package='teleop_twist_joy',
+            executable='teleop_node',
+            name='teleop_node',
+            parameters=[joystick_settings, {'use_sim_time': True}],
+            remappings=[('/cmd_vel','/diffbot_base_controller/cmd_vel_unstamped')]
+         )
+
+
     # create launch description
     ld = LaunchDescription()
     
@@ -98,5 +121,7 @@ def generate_launch_description():
     ld.add_action(joint_state_broadcaster_node)
     ld.add_action(slam_toolbox_node)
     ld.add_action(rviz_node)
+    ld.add_action(joystick_node)
+    ld.add_action(teleop_twist_joy_node)
 
     return ld
