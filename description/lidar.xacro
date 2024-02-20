@@ -41,11 +41,11 @@
 
     <joint name="lidar_bracket_joint" type="fixed">
         <parent link="chassis"/>
-        <child link="lidar_bracket_frame"/>
+        <child link="lidar_bracket"/>
         <origin xyz="${-(lidar_bracket_length/2 - lidar_radius)} 0 ${chassis_thickness/2 + lidar_bracket_height/2}" rpy="0 0 0"/>
     </joint>
 
-    <link name="lidar_bracket_frame">
+    <link name="lidar_bracket">
         <visual>
             <geometry>
                 <box size="${lidar_bracket_length} ${lidar_bracket_width} ${lidar_bracket_height}"/>

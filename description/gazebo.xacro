@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
     <xacro:if value="$(arg sim_mode)">
 
-        <!-- REFERENCES -->
+        <!-- GENERAL COLORS -->
         <gazebo reference="chassis">
             <material>Gazebo/White</material>
         </gazebo>
@@ -15,13 +15,20 @@
             <material>Gazebo/Blue</material>
         </gazebo>
 
+        <gazebo reference="caster_wheel_plate">
+            <material>Gazebo/Black</material>
+        </gazebo>
+
         <gazebo reference="caster_wheel">
             <material>Gazebo/Black</material>
             <mu1 value="0.001"/>
             <mu2 value="0.001"/>
         </gazebo>
 
-        
+        <gazebo reference="lidar_bracket">
+            <material>Gazebo/White</material>
+        </gazebo>
+
         <!-- DISTANCE SENSORS -->
 
         <xacro:property name="horizontal_samples" value="10"/>
@@ -146,11 +153,6 @@
         </gazebo>
 
         <!-- right -->
-        <xacro:property name="right_vertical_min_angle" value="-0.2"/>
-        <xacro:property name="right_vertical_max_angle" value="0.2"/>
-        <xacro:property name="right_horizontal_min_angle" value="-1"/>
-        <xacro:property name="right_horizontal_max_angle" value="1"/>
-
         <gazebo reference="distance_sensor_right">
             <material>Gazebo/Black</material>
             <pose>0 0 0 0 0 0</pose>
@@ -199,7 +201,6 @@
 
             </sensor>  
         </gazebo>
-
 
         <!-- Lidar -->
         <gazebo reference="lidar_frame">
