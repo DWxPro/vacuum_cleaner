@@ -1,5 +1,5 @@
 # ros2 vacuum cleaner 
-Vacuum cleaner robot with differential drive and lidar based on ros2
+ROS2-based robot vacuum cleaner with a differential drive system and LiDAR
 
 ## Real robot
 - LIFE V4 wheels, sweeper, vaccum -> Pi pico -> Pi -> ros2_control (diff_drive)

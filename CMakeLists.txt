@@ -81,6 +81,10 @@ install(
   DIRECTORY worlds
   DESTINATION share/vacuum_cleaner
 )
+install(
+  DIRECTORY maps
+  DESTINATION share/vacuum_cleaner
+)
 install(TARGETS vacuum_cleaner
   EXPORT export_vacuum_cleaner
   ARCHIVE DESTINATION lib
