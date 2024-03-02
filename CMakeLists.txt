@@ -92,6 +92,11 @@ install(TARGETS vacuum_cleaner
   RUNTIME DESTINATION bin
 )
 
+# include python scripts
+install(PROGRAMS
+  scripts/bumper_distance.py
+  DESTINATION lib/${PROJECT_NAME})
+
 # If the BUILD_TESTING option is enabled, finds and uses the GTest package
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
