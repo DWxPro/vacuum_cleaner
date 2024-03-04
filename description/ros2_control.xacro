@@ -11,7 +11,7 @@
         <param name="serial_device">/dev/serial/by-id/usb-Arduino_RaspberryPi_Pico_644861E6228B85D3-if00</param>
         <param name="baud_rate">115200</param>
         <param name="timeout_ms">1000</param>
-        <param name="enc_counts_per_rev">570</param> <!-- TODO: determine correct value -->
+        <param name="enc_counts_per_rev">575</param>
       </hardware>
       
       <joint name="left_wheel_joint">
