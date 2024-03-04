@@ -4,8 +4,8 @@
 #include "pid.h"
 
 // debug
-#define debug(x) Serial.print(x)
-#define debugln(x) Serial.println(x)
+#define debug(x) //Serial.print(x)
+#define debugln(x) //Serial.println(x)
 
 // temp values
 int i_temp;
@@ -194,7 +194,7 @@ void loop(){
         analogWrite(PIN_WHEEL_RIGHT_BACKWARD, control_value_right);
       }
     
-/* use to setup PID */
+/* use to setup PID
       debug(" set_r: ");
       debug(setpoint_right);
       debug(" set_l: ");    
@@ -209,6 +209,7 @@ void loop(){
       debug(speed_right);
       debug(" spe_l: ");
       debugln(speed_left);
+*/
 
       time_last_cycle = time_now;
       time_delta = 0;
