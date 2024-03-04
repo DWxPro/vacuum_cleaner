@@ -12,7 +12,12 @@
     <joint name="lidar_joint" type="fixed">
         <parent link="chassis"/>
         <child link="lidar_frame"/>
-        <origin xyz="0 0 ${chassis_thickness/2 + lidar_offset_z}" rpy="0 0 0"/>
+        <xacro:if value="$(arg sim_mode)">
+            <origin xyz="0 0 ${chassis_thickness/2 + lidar_offset_z}" rpy="0 0 0"/>
+        </xacro:if>
+        <xacro:unless value="$(arg sim_mode)">
+            <origin xyz="0 0 ${chassis_thickness/2 + lidar_offset_z}" rpy="0 0 ${pi}"/>
+        </xacro:unless>
     </joint>
 
     <link name="lidar_frame">
