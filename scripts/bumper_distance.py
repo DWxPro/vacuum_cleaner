@@ -21,7 +21,7 @@ class BumperDistance(Node):
         self.distance_front_pub = self.create_publisher(Range, "/bumper/distance/front", 10)
         self.distance_right_pub = self.create_publisher(Range, "/bumper/distance/right", 10)
         
-        self.ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+        self.ser = serial.Serial('/dev/serial/by-id/usb-Arduino_RaspberryPi_Pico_304C61E62BB46493-if00', 9600, timeout=1)
         
         self.get_logger().info("node \"bumper_distance\" has been started")
               
