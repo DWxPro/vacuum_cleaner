@@ -4,8 +4,8 @@
 #include "pid.h"
 
 // debug
-#define debug(x) //Serial.print(x)
-#define debugln(x) //Serial.println(x)
+#define debug(x) Serial.print(x)
+#define debugln(x) Serial.println(x)
 
 // temp values
 int i_temp;
@@ -30,15 +30,16 @@ int command;
 String value;
 
 // pin settings
-#define PIN_WHEEL_LEFT_ENABLE 2
-#define PIN_WHEEL_LEFT_FORWARD 4
-#define PIN_WHEEL_LEFT_BACKWARD 3
-#define PIN_WHEEL_LEFT_ENCODER 28
 
-#define PIN_WHEEL_RIGHT_ENABLE 7
-#define PIN_WHEEL_RIGHT_FORWARD 5
-#define PIN_WHEEL_RIGHT_BACKWARD 6
-#define PIN_WHEEL_RIGHT_ENCODER 27
+#define PIN_WHEEL_RIGHT_ENABLE 2
+#define PIN_WHEEL_RIGHT_FORWARD 4
+#define PIN_WHEEL_RIGHT_BACKWARD 3
+#define PIN_WHEEL_RIGHT_ENCODER 28
+
+#define PIN_WHEEL_LEFT_ENABLE 7
+#define PIN_WHEEL_LEFT_FORWARD 5
+#define PIN_WHEEL_LEFT_BACKWARD 6
+#define PIN_WHEEL_LEFT_ENCODER 27
 
 #define PIN_SWEEPER_LEFT_ENABLE 12
 #define PIN_SWEEPER_RIGHT_ENABLE 13
@@ -52,13 +53,13 @@ DynamicJsonDocument settings_JSON(jsonCapacity);
 DynamicJsonDocument new_settings_JSON(jsonCapacity);
 
 // control parameters
-double kp_left = 1.3;               // [-]
-double ki_left = 0.0;               // [ms]
-double kd_left = 0.0;               // [mm/ms²]
+double kp_left = 0.8;               // [-]
+double ki_left = 0.03;               // [ms]
+double kd_left = 0.2;               // [mm/ms²]
 
-double kp_right = 1.3;              // [-] 
-double ki_right = 0.0;              // [ms]
-double kd_right = 0.0;              // [mm/ms²]
+double kp_right = 0.8;              // [-] 
+double ki_right = 0.03;              // [ms]
+double kd_right = 0.2;              // [mm/ms²]
 
 bool enable_controller = false;
 
@@ -83,12 +84,12 @@ PID PID_left = PID(CYCLE_TIME, max_PWM, min_PWM, kp_left, kd_left, ki_left);
 PID PID_right = PID(CYCLE_TIME, max_PWM, min_PWM, kp_right, kd_right, ki_right);
 
 // encoder
-double encoder_resolution = 570;  // [1/U]
+double encoder_resolution = 575;  // [-]
 double wheel_diameter = 64;       // [mm]
 
-#define PI 3.141592               // [-]
+#define PI 3.141592653589793      // [-]
 
-double lengthPerPulse = 2 * (wheel_diameter / 2) * PI / encoder_resolution;
+double lengthPerPulse = PI * wheel_diameter  / encoder_resolution;
 
 unsigned long encoder_time_now_left = 0;          // [µm]
 unsigned long encoder_time_last_left = 0;         // [µm]
@@ -169,8 +170,8 @@ void loop(){
 
     if (time_delta >= CYCLE_TIME){
 
-      speed_left = (lengthPerPulse / encoder_time_delta_left)*1000000;
-      speed_right = (lengthPerPulse / encoder_time_delta_right)*1000000;
+      speed_left = (lengthPerPulse / encoder_time_delta_left) * 1000000;
+      speed_right = (lengthPerPulse / encoder_time_delta_right) * 1000000;
 
       control_value_left = PID_left.calculate(abs(setpoint_left), speed_left);
       control_value_right = PID_right.calculate(abs(setpoint_right), speed_right);
@@ -193,22 +194,21 @@ void loop(){
         analogWrite(PIN_WHEEL_RIGHT_BACKWARD, control_value_right);
       }
     
-/* use to setup PID
+/* use to setup PID */
       debug(" set_r: ");
       debug(setpoint_right);
-      debug("set_l: ");    
+      debug(" set_l: ");    
       debug(setpoint_left);
       
-      debug(" cmd_r: ");
-      debug(control_value_right);
-      debug(" cmd_l: ");
-      debug(control_value_left);
+      //debug(" cmd_r: ");
+      //debug(control_value_right);
+      //debug(" cmd_l: ");
+      //debug(control_value_left);
     
       debug(" spe_r: ");
-      debugln(speed_right);
+      debug(speed_right);
       debug(" spe_l: ");
-      debug(speed_left);
-*/  
+      debugln(speed_left);
 
       time_last_cycle = time_now;
       time_delta = 0;
@@ -331,6 +331,9 @@ void loop(){
         PID_left.setPID(kp_left, kd_left, ki_left);
         PID_right.setPID(kp_right, kd_right, ki_right);
 
+        //PID PID_left = PID(CYCLE_TIME, max_PWM, min_PWM, kp_left, kd_left, ki_left);
+        //PID PID_right = PID(CYCLE_TIME, max_PWM, min_PWM, kp_right, kd_right, ki_right);
+
         lengthPerPulse = 2 * (wheel_diameter / 2) * PI / encoder_resolution;
 
         debugln("(" + String(CMD_SET_SETTINGS) + ") ");
@@ -357,7 +360,7 @@ void loop(){
 
         String settings_msg;
         serializeJson(settings_JSON, settings_msg);
-        debug("(" + String(CMD_GET_SETTINGS) + " ");
+        debug("(" + String(CMD_GET_SETTINGS) + ") ");
         Serial.println(settings_msg);
         break;
       }
