@@ -106,14 +106,14 @@ def generate_launch_description():
     # create launch description
     ld = LaunchDescription()
 
-    ld.add_action(control_node)
-    ld.add_action(robot_state_publisher_node)
-    ld.add_action(diffbot_base_controller_node)
-    ld.add_action(joint_state_broadcaster_node)
-    ld.add_action(slam_toolbox_node)
-    #ld.add_action(rviz_node)
-    ld.add_action(twist_mux_node)
-    #ld.add_action(joystick_node)
-    #ld.add_action(teleop_twist_joy_node)
+    #ld.add_action(control_node)
+    #ld.add_action(robot_state_publisher_node)
+    #ld.add_action(diffbot_base_controller_node)
+    #ld.add_action(joint_state_broadcaster_node)
+    #ld.add_action(slam_toolbox_node)
+    ld.add_action(rviz_node)
+    #ld.add_action(twist_mux_node)
+    ld.add_action(joystick_node)
+    ld.add_action(teleop_twist_joy_node)
 
     return ld
