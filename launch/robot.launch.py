@@ -19,6 +19,7 @@ def generate_launch_description():
     joystick_file_name = 'joystick.yaml'
     twist_mux_file_name = 'twist_mux.yaml'
     controller_settings_file_name = 'diffbot_controllers.yaml'
+    rplidar_port = '/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0'
 
     path_package_share = FindPackageShare(package=package_name).find(package_name)
 
@@ -78,31 +79,38 @@ def generate_launch_description():
         package='slam_toolbox',
         executable='async_slam_toolbox_node',
         name='slam_toolbox',
-        output='screen')
+        output='screen'
+    )
     
     # twist_mux
     twist_mux_node = Node(
-            package="twist_mux",
-            executable="twist_mux",
-            parameters=[twist_mux_settings, {'use_sim_time': False}],
-            remappings=[('/cmd_vel_out','/diffbot_base_controller/cmd_vel_unstamped')]
-        )
+        package="twist_mux",
+        executable="twist_mux",
+        parameters=[twist_mux_settings, {'use_sim_time': False}],
+        remappings=[('/cmd_vel_out','/diffbot_base_controller/cmd_vel_unstamped')]
+    )
     
     # joystick
     joystick_node = Node(
-            package='joy',
-            executable='joy_node',
-            parameters=[joystick_settings, {'use_sim_time': False}],
-         )
+        package='joy',
+        executable='joy_node',
+        parameters=[joystick_settings, {'use_sim_time': False}],
+    )
 
     teleop_twist_joy_node = Node(
-            package='teleop_twist_joy',
-            executable='teleop_node',
-            name='teleop_node',
-            parameters=[joystick_settings, {'use_sim_time': False}],
-            remappings=[('/cmd_vel','/cmd_vel_joy')]
-         )
+        package='teleop_twist_joy',
+        executable='teleop_node',
+        name='teleop_node',
+        parameters=[joystick_settings, {'use_sim_time': False}],
+        remappings=[('/cmd_vel','/cmd_vel_joy')]
+    )
     
+    rplidar_node = Node(
+        package='rplidar_ros',
+        executable='rplidar_composition',
+        parameters=[{'serial_port': rplidar_port, 'frame_id': 'lidar_frame', 'angle_compensate': True, 'scanmode': 'Standard'}]
+    )
+
     # create launch description
     ld = LaunchDescription()
 
@@ -115,5 +123,6 @@ def generate_launch_description():
     ld.add_action(twist_mux_node)
     #ld.add_action(joystick_node)
     #ld.add_action(teleop_twist_joy_node)
+    ld.add_action(rplidar_node)
 
     return ld
