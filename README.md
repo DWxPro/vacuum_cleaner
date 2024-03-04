@@ -13,7 +13,32 @@ ROS2-based robot vacuum cleaner with a differential drive system and LiDAR
 - slam
 - rviz2
 
-# remap teleop_twist_keyboard
+# necessary packages
+xacro
 ```bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/diffbot_base_controller/cmd_vel_unstamped
+sudo apt install ros-humble-xacro
+```
+ros2_control 
+```bash
+sudo apt install ros-humble-ros2-control ros-humble-ros2-controllers
+```
+libserial
+```bash
+sudo apt install libserial-dev
+```
+slam_toolbox
+```bash
+sudo apt install ros-humble-slam-toolbox
+```
+nav2
+```bash
+sudo apt install ros-humble-navigation2 ros-humble-nav2-bringup
+```
+twistmux
+```bash
+sudo apt install ros-humble-twist-mux
+```
+joystick
+```bash
+sudo apt install joystick evtest
 ```
