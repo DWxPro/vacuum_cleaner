@@ -14,9 +14,9 @@ def generate_launch_description():
     urdf_name = 'robot.urdf.xacro'
     urdf_mappings = {'sim_mode': "true"}
     world_file_name = 'my_world.world'
+    slam_mapping = True
     slam_mapping_file_name = 'slam_mapping.yaml'
     slam_localization_file_name = 'slam_localization.yaml'
-    slam_mapping = False
     rviz_file_name = 'presettings.rviz'
     joystick_file_name = 'joystick.yaml'
     twist_mux_file_name = 'twist_mux.yaml'
@@ -25,13 +25,16 @@ def generate_launch_description():
     path_gazebo_ros_share = FindPackageShare(package='gazebo_ros').find('gazebo_ros')
 
     robot_description = xacro.process_file(os.path.join(path_package_share,'description',urdf_name), mappings = urdf_mappings).toxml()
-    world_settings = os.path.join(path_package_share, 'worlds', world_file_name)
     rviz_settings = os.path.join(path_package_share,'config',rviz_file_name)
-    slam_mapping_settings = os.path.join(path_package_share,'config',slam_mapping_file_name)
-    slam_localization_settings = os.path.join(path_package_share,'config',slam_localization_file_name)
+    if slam_mapping:
+        slam_settings = os.path.join(path_package_share,'config',slam_mapping_file_name)
+    else:
+        slam_settings = os.path.join(path_package_share,'config',slam_localization_file_name)
     joystick_settings = os.path.join(path_package_share ,'config',joystick_file_name)
     twist_mux_settings = os.path.join(path_package_share,'config',twist_mux_file_name)
-    
+
+    world_settings = os.path.join(path_package_share, 'worlds', world_file_name)
+
     # controller_manager
     # running inside gazebo
 
@@ -73,16 +76,8 @@ def generate_launch_description():
              )
 
     # slam_toolbox
-    slam_toolbox_mapping_node = Node(
-        parameters=[{'params_file': slam_mapping_settings,'use_sim_time': True}],
-        package='slam_toolbox',
-        executable='async_slam_toolbox_node',
-        name='slam_toolbox',
-        output='screen')
-
-    # slam_toolbox
-    slam_toolbox_localization_node = Node(
-        parameters=[{'params_file': slam_localization_settings,'use_sim_time': True}],
+    slam_toolbox_node = Node(
+        parameters=[{'params_file': slam_settings,'use_sim_time': True}],
         package='slam_toolbox',
         executable='async_slam_toolbox_node',
         name='slam_toolbox',
@@ -134,11 +129,10 @@ def generate_launch_description():
     ld.add_action(spawn_entity_node)
     ld.add_action(diffbot_base_controller_node)
     ld.add_action(joint_state_broadcaster_node)
-    ld.add_action(slam_toolbox_mapping_node)
-    #ld.add_action(slam_toolbox_localization_node)
+    ld.add_action(slam_toolbox_node)
     ld.add_action(rviz_node)
     ld.add_action(twist_mux_node)
-    #ld.add_action(joystick_node)
-    #ld.add_action(teleop_twist_joy_node)
+    ld.add_action(joystick_node)
+    ld.add_action(teleop_twist_joy_node)
 
     return ld
