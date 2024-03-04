@@ -200,10 +200,10 @@ void loop(){
       debug(" set_l: ");    
       debug(setpoint_left);
       
-      //debug(" cmd_r: ");
-      //debug(control_value_right);
-      //debug(" cmd_l: ");
-      //debug(control_value_left);
+      debug(" cmd_r: ");
+      debug(control_value_right);
+      debug(" cmd_l: ");
+      debug(control_value_left);
     
       debug(" spe_r: ");
       debug(speed_right);

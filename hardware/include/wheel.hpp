@@ -10,11 +10,11 @@ class Wheel
     public:
 
     std::string name = "";
-    double enc = 0;
-    double cmd = 0;
-    double pos = 0;
-    double vel = 0;
-    double rads_per_count = 0;
+    double enc = 0;                 // [-]
+    double cmd = 0;                 // [rad/s]
+    double pos = 0;                 // [rad]
+    double vel = 0;                 // [rad/s]
+    double rads_per_count = 0;      // [-]
 
     Wheel() = default;
 

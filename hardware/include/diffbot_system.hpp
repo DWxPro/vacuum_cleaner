@@ -53,6 +53,7 @@ struct Config
   int pid_d = 0;
   int pid_i = 0;
   int pid_o = 0;
+  int wheel_radius_mm = 0;
 };
 
 

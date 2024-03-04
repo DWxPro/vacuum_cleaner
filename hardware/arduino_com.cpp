@@ -78,7 +78,7 @@ void ArduinoCom::disable_wheels()
 void ArduinoCom::set_wheel_speeds(int val_1, int val_2)
 {
   std::stringstream ss;
-  ss << CMD_SETPOINT_WHEELS << " " << val_1 << " " << val_2 << "\n";
+  ss << CMD_SETPOINT_WHEELS << " " << (val_1) << " " << (val_2) << "\n";
   serial_connection_.Write(ss.str());
 }
 

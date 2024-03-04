@@ -42,6 +42,7 @@ hardware_interface::CallbackReturn VacuumCleanerHardware::on_init(const hardware
   cfg_.baud_rate = std::stoi(info_.hardware_parameters["baud_rate"]);
   cfg_.timeout_ms = std::stoi(info_.hardware_parameters["timeout_ms"]);
   cfg_.enc_counts_per_rev = std::stoi(info_.hardware_parameters["enc_counts_per_rev"]);
+  cfg_.wheel_radius_mm = std::stoi(info_.hardware_parameters["wheel_radius_mm"]);
   
   wheel_l_.setup(cfg_.left_wheel_name, cfg_.enc_counts_per_rev);
   wheel_r_.setup(cfg_.right_wheel_name, cfg_.enc_counts_per_rev);
@@ -227,11 +228,11 @@ hardware_interface::return_type VacuumCleanerHardware::write(const rclcpp::Time 
   {
     return hardware_interface::return_type::ERROR;
   }
-
-  arduino_.set_wheel_speeds(wheel_l_.cmd, wheel_r_.cmd);
-
-  // RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"),"Encoder left: %f Encoder right %f", wheel_l_.cmd, wheel_r_.cmd);
-  // use ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/diffbot_base_controller/cmd_vel_unstamped
+  
+  //RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"),"cmd wheel_l_: %f", wheel_l_.cmd);
+  //RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"),"cmd wheel_l_: %f", wheel_l_.cmd * cfg_.wheel_radius_mm);
+  
+  arduino_.set_wheel_speeds(wheel_l_.cmd * cfg_.wheel_radius_mm, wheel_r_.cmd * cfg_.wheel_radius_mm);
 
   return hardware_interface::return_type::OK;
 }
