@@ -38,6 +38,10 @@ hardware_interface::CallbackReturn VacuumCleanerHardware::on_init(const hardware
   range_sensor_front_.name = info_.hardware_parameters["range_sensor_front_name"];
   range_sensor_right_.name = info_.hardware_parameters["range_sensor_right_name"];
 
+  // user interface
+  home_button_.name = info_.hardware_parameters["home_button_name"];
+  home_button_LED_.name = info_.hardware_parameters["home_button_LED_name"];
+
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -55,6 +59,8 @@ std::vector<hardware_interface::StateInterface> VacuumCleanerHardware::export_st
   state_interfaces.emplace_back(hardware_interface::StateInterface(range_sensor_front_.name, "range", &range_sensor_front_.range));
   state_interfaces.emplace_back(hardware_interface::StateInterface(range_sensor_right_.name, "range", &range_sensor_right_.range));
 
+  state_interfaces.emplace_back(hardware_interface::StateInterface("user_interface", "home_button", &home_button_.state));
+
   return state_interfaces;
 }
 
@@ -65,6 +71,8 @@ std::vector<hardware_interface::CommandInterface> VacuumCleanerHardware::export_
 
   command_interfaces.emplace_back(hardware_interface::CommandInterface(wheel_left_.name, "velocity", &wheel_left_.command));
   command_interfaces.emplace_back(hardware_interface::CommandInterface(wheel_right_.name, "velocity", &wheel_right_.command));
+
+  command_interfaces.emplace_back(hardware_interface::CommandInterface("user_interface", "home_button_LED", &home_button_LED_.state));
 
   return command_interfaces;
 }
@@ -184,3 +192,5 @@ hardware_interface::return_type VacuumCleanerHardware::write(const rclcpp::Time 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(
   vacuum_cleaner::VacuumCleanerHardware, hardware_interface::SystemInterface)
+
+// vacuum_cleaner::VacuumCleanerHardware must match the class in the XML file

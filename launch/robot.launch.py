@@ -73,6 +73,13 @@ def generate_launch_description():
         arguments=["range_sensor_broadcaster_right", "--controller-manager", "/controller_manager"]
     )
 
+    # gpio_controller
+    gpio_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["gpio_controller", "-c", "/controller_manager"],
+    )
+
     # robot_state_publisher (tf)
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
@@ -138,6 +145,7 @@ def generate_launch_description():
     ld.add_action(range_sensor_broadcaster_left_node)
     ld.add_action(range_sensor_broadcaster_front_node)
     ld.add_action(range_sensor_broadcaster_right_node)
+    ld.add_action(gpio_controller_spawner)
     #ld.add_action(slam_toolbox_node)
     #ld.add_action(rviz_node)
     ld.add_action(twist_mux_node)

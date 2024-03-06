@@ -63,6 +63,13 @@ struct RangeSensorParameters
   double range = 0;             // [0-1023]
 };
 
+struct DIDOParameters
+{
+  std::string name = "";
+  double state = false;         // [0-1023]
+};
+
+
 public:
   RCLCPP_SHARED_PTR_DEFINITIONS(VacuumCleanerHardware);
 
@@ -107,6 +114,8 @@ private:
   RangeSensorParameters range_sensor_front_;
   RangeSensorParameters range_sensor_right_;  
   
+  DIDOParameters home_button_;
+  DIDOParameters home_button_LED_;
 };
 
 }  // namespace vacuum_cleaner

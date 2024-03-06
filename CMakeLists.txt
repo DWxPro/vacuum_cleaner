@@ -18,6 +18,9 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   rclcpp
   rclcpp_lifecycle
   jsoncpp
+  control_msgs
+  std_msgs
+  controller_interface
 )
 
 # Iterates over the dependencies defined in THIS_PACKAGE_INCLUDE_DEPENDS and finds them using find_package
@@ -31,6 +34,7 @@ add_library(
   SHARED
   hardware/diffbot_system.cpp
   hardware/arduino_com.cpp
+  controllers/gpio_controller.cpp
 )
 
 # Specifies that C++ standard features from C++17 should be used for the vacuum_cleaner library
@@ -40,6 +44,7 @@ target_compile_features(vacuum_cleaner PUBLIC cxx_std_17)
 # The hardware/include directory is used for the build, and include/vacuum_cleaner is used for installation
 target_include_directories(vacuum_cleaner PUBLIC
 $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/hardware/include>
+$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/controllers/include>
 $<INSTALL_INTERFACE:include/vacuum_cleaner>
 )
 # Specifies the ROS 2 dependencies for the vacuum_cleaner library.
@@ -59,6 +64,8 @@ target_compile_options(vacuum_cleaner PUBLIC -ljsoncpp)
 
 # Exports a plugin description file for the hardware_interface.
 pluginlib_export_plugin_description_file(hardware_interface hardware.xml)
+# Export a plugin description file for thecontrollers
+pluginlib_export_plugin_description_file(controller_interface controller.xml)
 
 # Installs necessary fildes to the target directorys
 install(
@@ -71,6 +78,10 @@ install(
 )
 install(
   DIRECTORY hardware/include/
+  DESTINATION include/vacuum_cleaner
+)
+install(
+  DIRECTORY controllers/include/
   DESTINATION include/vacuum_cleaner
 )
 install(

@@ -21,6 +21,9 @@
         <param name="range_sensor_left_name">range_sensor_left</param>
         <param name="range_sensor_front_name">range_sensor_front</param>
         <param name="range_sensor_right_name">range_sensor_right</param>
+        <param name="home_butto_name">home_button</param>
+        <param name="home_button_LED_name">home_button_LED</param>
+        
       </hardware>
       
       <joint name="left_wheel_joint">
@@ -50,6 +53,11 @@
         <param name="frame_id">range_sensor_right</param>
       </sensor>
     
+      <gpio name="user_interface">
+        <command_interface name="home_button_LED"/>
+        <state_interface name="home_button"/> 
+      </gpio>
+
     </ros2_control>
   </xacro:unless>
   

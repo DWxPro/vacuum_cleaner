@@ -17,6 +17,9 @@ controller_manager:
     range_sensor_broadcaster_right:
       type: range_sensor_broadcaster/RangeSensorBroadcaster
 
+    gpio_controller:
+      type: vacuum_cleaner/GPIOController
+
 diffbot_base_controller:
   ros__parameters:
     publish_rate: 50.0
@@ -70,3 +73,10 @@ range_sensor_broadcaster_right:
     field_of_view: 0.1
     min_range: 0.10
     max_range: 7.0
+
+gpio_controller:
+  ros__parameters:
+    inputs:
+     - user_interface/home_button
+    outputs:
+     - user_interface/home_button_LED

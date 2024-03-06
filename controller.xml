@@ -1,0 +1,9 @@
+<library path="vacuum_cleaner">
+  <class name="vacuum_cleaner/GPIOController" 
+         type="GPIO_controller::GPIOController"
+         base_class_type="controller_interface::ControllerInterface">
+    <description>
+      This controller publishes the GPIOs.
+    </description>
+  </class>
+</library>
