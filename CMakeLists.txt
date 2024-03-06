@@ -94,7 +94,7 @@ install(TARGETS vacuum_cleaner
 
 # include python scripts
 install(PROGRAMS
-  scripts/bumper_distance.py
+  scripts/cleaning.py
   DESTINATION lib/${PROJECT_NAME})
 
 # If the BUILD_TESTING option is enabled, finds and uses the GTest package
