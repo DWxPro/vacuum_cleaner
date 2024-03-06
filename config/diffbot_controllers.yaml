@@ -8,6 +8,15 @@ controller_manager:
     diffbot_base_controller:
       type: diff_drive_controller/DiffDriveController
 
+    range_sensor_broadcaster_left:
+      type: range_sensor_broadcaster/RangeSensorBroadcaster
+
+    range_sensor_broadcaster_front:
+      type: range_sensor_broadcaster/RangeSensorBroadcaster
+
+    range_sensor_broadcaster_right:
+      type: range_sensor_broadcaster/RangeSensorBroadcaster
+
 diffbot_base_controller:
   ros__parameters:
     publish_rate: 50.0
@@ -34,3 +43,30 @@ diffbot_base_controller:
     #angular.z.min_acceleration: -1.0            # [rad/s²]
 
     use_stamped_vel: false
+
+range_sensor_broadcaster_left:
+  ros__parameters:
+    sensor_name: "range_sensor_left"
+    frame_id: "range_sensor_left"
+    radiation_type: 1
+    field_of_view: 0.1
+    min_range: 0.10
+    max_range: 7.0
+
+range_sensor_broadcaster_front:
+  ros__parameters:
+    sensor_name: "range_sensor_front"
+    frame_id: "range_sensor_front"
+    radiation_type: 1
+    field_of_view: 0.1
+    min_range: 0.10
+    max_range: 7.0
+
+range_sensor_broadcaster_right:
+  ros__parameters:
+    sensor_name: "range_sensor_right"
+    frame_id: "range_sensor_right"
+    radiation_type: 1
+    field_of_view: 0.1
+    min_range: 0.10
+    max_range: 7.0

@@ -40,20 +40,24 @@ namespace vacuum_cleaner
 class VacuumCleanerHardware : public hardware_interface::SystemInterface
 {
 
-struct Config
+struct Parameters
 {
   std::string left_wheel_name = "";
   std::string right_wheel_name = "";
-  float loop_rate = 0.0;
-  std::string serial_device = "";
-  int baud_rate = 0;
-  int timeout_ms = 0;
   int enc_counts_per_rev = 0;
-  int pid_p = 0;
-  int pid_d = 0;
-  int pid_i = 0;
-  int pid_o = 0;
   int wheel_radius_mm = 0;
+
+  std::string motors_port = "";
+  int motors_baud_rate = 0;
+  int motors_timeout_ms = 0;
+
+  std::string sensors_port = "";
+  int sensors_baud_rate = 0;
+  int sensors_timeout_ms = 0;
+
+  std::string range_sensor_left_name = "";
+  std::string range_sensor_front_name = "";
+  std::string range_sensor_right_name = "";
 };
 
 
@@ -89,11 +93,13 @@ public:
 
 private:
 
-  ArduinoCom arduino_;
-  Config cfg_;
+  Parameters params_;
+  ArduinoCom motors_;
+  ArduinoCom sensors_;
+
   Wheel wheel_l_;
   Wheel wheel_r_;
-  double radiansDiff;
+  double test;
 
 };
 

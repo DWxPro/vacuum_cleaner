@@ -20,7 +20,7 @@ LibSerial::BaudRate convert_baud_rate(int baud_rate)
   }
 }
 
-void ArduinoCom::connect(const std::string &serial_device, int32_t baud_rate, int32_t timeout_ms)
+void ArduinoCom::connect(std::string serial_device, int baud_rate, int timeout_ms)
 {  
   timeout_ms_ = timeout_ms;
   serial_connection_.Open(serial_device);
@@ -37,7 +37,7 @@ bool ArduinoCom::connected() const
   return serial_connection_.IsOpen();
 }
 
-void ArduinoCom::read_encoder_values(double &val_1, double &val_2)
+void ArduinoCom::read_encoder_values(double &counts_left, double &counts_right)
 {
   serial_connection_.FlushIOBuffers();
   serial_connection_.Write(std::to_string(CMD_GET_ENCODER_PULSES) + "\n");
@@ -49,16 +49,25 @@ void ArduinoCom::read_encoder_values(double &val_1, double &val_2)
   }
   catch (const LibSerial::ReadTimeout&)
   {
-    std::cerr << "The ReadByte() call has timed out." << std::endl ;
+    std::cerr << "motor connection has timed out." << std::endl ;
   }
+
+  // TODO: change seperation
 
   std::string delimiter = " ";
   size_t del_pos = response.find(delimiter);
   std::string pulses_left = response.substr(0, del_pos);
   std::string pulses_right = response.substr(del_pos + delimiter.length());
 
-  val_1 = std::atoi(pulses_left.c_str());
-  val_2 = std::atoi(pulses_right.c_str());
+  counts_left = std::atoi(pulses_left.c_str());
+  counts_right = std::atoi(pulses_right.c_str());
+}
+
+void ArduinoCom::reset_encoder_values()
+{
+  std::stringstream ss;
+  ss << CMD_RESET_ENCODER_PULSES << "\n";
+  serial_connection_.Write(ss.str());
 }
 
 void ArduinoCom::enable_wheels()
@@ -75,10 +84,10 @@ void ArduinoCom::disable_wheels()
   serial_connection_.Write(ss.str());
 }
 
-void ArduinoCom::set_wheel_speeds(int val_1, int val_2)
+void ArduinoCom::set_wheel_speeds(int speed_left, int speed_right)
 {
   std::stringstream ss;
-  ss << CMD_SETPOINT_WHEELS << " " << (val_1) << " " << (val_2) << "\n";
+  ss << CMD_SETPOINT_WHEELS << " " << (speed_left) << " " << (speed_right) << "\n";
   serial_connection_.Write(ss.str());
 }
 
@@ -116,3 +125,4 @@ void ArduinoCom::set_vacuum_speed(int val)
   ss << CMD_SETPOIN_VACUUM << " " << val << "\n";
   serial_connection_.Write(ss.str());
 }
+

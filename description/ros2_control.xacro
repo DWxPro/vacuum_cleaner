@@ -8,11 +8,17 @@
         <plugin>vacuum_cleaner/VacuumCleanerHardware</plugin>
         <param name="left_wheel_name">left_wheel_joint</param>
         <param name="right_wheel_name">right_wheel_joint</param>
-        <param name="serial_device">/dev/serial/by-id/usb-Arduino_RaspberryPi_Pico_644861E6228B85D3-if00</param>
-        <param name="baud_rate">115200</param>
-        <param name="timeout_ms">1000</param>
         <param name="enc_counts_per_rev">575</param>
         <param name="wheel_radius_mm">32</param>
+        <param name="motors_port">/dev/serial/by-id/usb-Arduino_RaspberryPi_Pico_644861E6228B85D3-if00</param>
+        <param name="motors_baud_rate">115200</param>
+        <param name="motors_timeout_ms">1000</param>
+        <param name="sensors_port">/dev/serial/by-id/usb-Arduino_RaspberryPi_Pico_304C61E62BB46493-if00</param>
+        <param name="sensors_baud_rate">115200</param>
+        <param name="sensors_timeout_ms">1000</param>
+        <param name="range_sensor_left_name">range_sensor_left</param>
+        <param name="range_sensor_front_name">range_sensor_front</param>
+        <param name="range_sensor_right_name">range_sensor_right</param>
       </hardware>
       
       <joint name="left_wheel_joint">
@@ -26,6 +32,21 @@
         <state_interface name="position"/>
         <state_interface name="velocity"/>
       </joint>
+
+      <sensor name="range_sensor_left">
+        <state_interface name="range"/>
+        <param name="frame_id">range_sensor_left</param>
+      </sensor>
+
+      <sensor name="range_sensor_front">
+        <state_interface name="range"/>
+        <param name="frame_id">range_sensor_front</param>
+      </sensor>
+      
+      <sensor name="range_sensor_right">
+        <state_interface name="range"/>
+        <param name="frame_id">range_sensor_right</param>
+      </sensor>
     
     </ros2_control>
   </xacro:unless>
@@ -33,25 +54,25 @@
   <!-- SIMULATION -->
   <xacro:if value="$(arg sim_mode)">
     <ros2_control name="GazeboSystem" type="system">
-        <hardware>
-            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
-        </hardware>
-        <joint name="left_wheel_joint">
-            <command_interface name="velocity">
-                <param name="min">-10</param>
-                <param name="max">10</param>
-            </command_interface>
-            <state_interface name="velocity"/>
-            <state_interface name="position"/>
-        </joint>
-        <joint name="right_wheel_joint">
-            <command_interface name="velocity">
-                <param name="min">-10</param>
-                <param name="max">10</param>
-            </command_interface>
-            <state_interface name="velocity"/>
-            <state_interface name="position"/>
-        </joint>
+      <hardware>
+          <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+      </hardware>
+      <joint name="left_wheel_joint">
+          <command_interface name="velocity">
+              <param name="min">-10</param>
+              <param name="max">10</param>
+          </command_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="position"/>
+      </joint>
+      <joint name="right_wheel_joint">
+          <command_interface name="velocity">
+              <param name="min">-10</param>
+              <param name="max">10</param>
+          </command_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="position"/>
+      </joint>
         
     </ros2_control>
   </xacro:if>

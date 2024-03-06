@@ -13,17 +13,17 @@ double d_temp;
 String S_temp;
 
 // commands
-#define CMD_SETPOINT_LEFT        1   // [mm/s]
-#define CMD_SETPOINT_RIGHT       2   // [mm/s]
-#define CMD_SETPOINT_WHEELS      3   // [left,right]
-#define CMD_SETPOIN_VACCUM       4   // [0-255]
-#define CMD_ENABLE_WHEELS        5   // [true/false]
-#define CMD_ENABLE_SWEEPER       6   // [true/false]
-#define CMD_ENABLE_VACCUM        7   // [true/false]
-#define CMD_GET_ENCODER_PULSES   8   // [-]
-#define CMD_RESET_ENCODER_PULSES 9   // [-]
-#define CMD_SET_SETTINGS         10  // [-]
-#define CMD_GET_SETTINGS         11  // [-]
+#define CMD_SETPOINT_LEFT             1   // [mm/s]
+#define CMD_SETPOINT_RIGHT            2   // [mm/s]
+#define CMD_SETPOINT_WHEELS           3   // [left,right]
+#define CMD_SETPOIN_VACUUM            4   // [0-255]
+#define CMD_ENABLE_WHEELS             5   // [true/false]
+#define CMD_ENABLE_SWEEPER            6   // [true/false]
+#define CMD_ENABLE_VACUUM             7   // [true/false]
+#define CMD_GET_ENCODER_PULSES        8   // [-]
+#define CMD_RESET_ENCODER_PULSES      9   // [-]
+#define CMD_SET_SETTINGS              10  // [-]
+#define CMD_GET_SETTINGS              11  // [-]
 
 String message;
 int command;
@@ -245,7 +245,7 @@ void loop(){
         break;
       }
 
-      case CMD_SETPOIN_VACCUM:{
+      case CMD_SETPOIN_VACUUM:{
         vaccum_speed = value.toInt();
         analogWrite(PIN_VACCUM_PWM, vaccum_speed);
           
@@ -283,7 +283,7 @@ void loop(){
         break;
       }
 
-      case CMD_ENABLE_VACCUM:{
+      case CMD_ENABLE_VACUUM:{
         enable_vaccum = (value == "true");
         if (enable_vaccum){
           digitalWrite(PIN_VACCUM_ENABLE, HIGH);

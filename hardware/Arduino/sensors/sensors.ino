@@ -4,8 +4,8 @@
 // debug
 #define debugSensor(x) //Serial.print(x)
 #define debugSensorln(x) //Serial.println(x)
-#define debugCom(x) Serial.print(x)
-#define debugComln(x) Serial.println(x)
+#define debugCom(x) //Serial.print(x)
+#define debugComln(x) //Serial.println(x)
 
 // temp values
 int i_temp;
@@ -13,7 +13,7 @@ double d_temp;
 String S_temp;
 
 // commands
-#define CMD_GET_DISTANCE_VALUES       1   // [right,front,left]
+#define CMD_GET_RANGE_VALUES          1   // [right,front,left]
 #define CMD_GET_BUTTON_STATES         2   // [circle,start,home]
 #define CMD_GET_LIMIT_SWITCH_STATES   3   // [right,left]
 #define CMD_SET_LEDS                  4   // [circle,start-grün,start-rot,home]
@@ -40,15 +40,15 @@ bool LED_state_start_green = false;
 bool LED_state_start_red = false;
 bool LED_state_home = false;
 
-// distance sensor
+// range sensor
 #define PIN_SIGNAL 22
 #define PIN_SENSOR_RIGHT 26
 #define PIN_SENSOR_FRONT 27
 #define PIN_SENSOR_LEFT 28
 
-int distance_right = 0;
-int distance_front = 0;
-int distance_left = 0;
+int range_right = 0;
+int range_front = 0;
+int range_left = 0;
 
 #define CYCLE_TIME 30               // [ms]
 
@@ -63,7 +63,7 @@ int time_delta = 0;                 // [ms]
 bool limit_switch_state_right = false;
 bool limit_switch_state_left = false;
 
-void readDistanceSensors(int &distance_right, int &distance_front, int &distance_left){
+void readRangeSensors(int &range_right, int &range_front, int &range_left){
 
   time_now = millis();
   time_delta = time_now - time_last_cycle;
@@ -73,16 +73,16 @@ void readDistanceSensors(int &distance_right, int &distance_front, int &distance
 
     delay(1);  
 
-    distance_right = analogRead(PIN_SENSOR_RIGHT);
-    distance_left = analogRead(PIN_SENSOR_LEFT);
-    distance_front = analogRead(PIN_SENSOR_FRONT);
+    range_right = analogRead(PIN_SENSOR_RIGHT);
+    range_left = analogRead(PIN_SENSOR_LEFT);
+    range_front = analogRead(PIN_SENSOR_FRONT);
 
     debugSensor("left ");
-    debugSensor(distance_left);
+    debugSensor(range_left);
     debugSensor(" front ");
-    debugSensor(distance_front);
+    debugSensor(range_front);
     debugSensor(" right ");
-    debugSensorln(distance_right);
+    debugSensorln(range_right);
     
     delay(4);
 
@@ -109,8 +109,8 @@ void setup() {
 }
 
 void loop(){
-  // read distance sensors
-  readDistanceSensors(distance_right, distance_front, distance_left);
+  // read range sensors
+  readRangeSensors(range_right, range_front, range_left);
 
   // process commands 
   if (Serial.available() > 0)
@@ -122,10 +122,10 @@ void loop(){
     switch (command)
     {
 
-      case CMD_GET_DISTANCE_VALUES:{
-        Serial.println(String(distance_right) + " " + String(distance_front) + " " + String(distance_left));
+      case CMD_GET_RANGE_VALUES:{
+        Serial.println(String(range_right) + " " + String(range_front) + " " + String(range_left));
 
-        debugComln("(" + String(CMD_GET_DISTANCE_VALUES) + ")" + " right " + " front " + " left");
+        debugComln("(" + String(CMD_GET_RANGE_VALUES) + ")" + " right " + " front " + " left");
         break;
       }
 

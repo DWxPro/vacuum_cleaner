@@ -56,6 +56,23 @@ def generate_launch_description():
         arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
     )
 
+    # range_sensor_broadcaster_node
+    range_sensor_broadcaster_left_node = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["range_sensor_broadcaster_left", "--controller-manager", "/controller_manager"],
+    )
+    range_sensor_broadcaster_front_node = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["range_sensor_broadcaster_front", "--controller-manager", "/controller_manager"]
+    )
+    range_sensor_broadcaster_right_node = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["range_sensor_broadcaster_right", "--controller-manager", "/controller_manager"]
+    )
+
     # robot_state_publisher (tf)
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
@@ -118,11 +135,14 @@ def generate_launch_description():
     ld.add_action(robot_state_publisher_node)
     ld.add_action(diffbot_base_controller_node)
     ld.add_action(joint_state_broadcaster_node)
-    ld.add_action(slam_toolbox_node)
+    ld.add_action(range_sensor_broadcaster_left_node)
+    ld.add_action(range_sensor_broadcaster_front_node)
+    ld.add_action(range_sensor_broadcaster_right_node)
+    #ld.add_action(slam_toolbox_node)
     #ld.add_action(rviz_node)
     ld.add_action(twist_mux_node)
-    #ld.add_action(joystick_node)
-    #ld.add_action(teleop_twist_joy_node)
-    ld.add_action(rplidar_node)
+    ld.add_action(joystick_node)
+    ld.add_action(teleop_twist_joy_node)
+    #ld.add_action(rplidar_node)
 
     return ld

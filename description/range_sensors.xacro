@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:property name="range_sensor_radius" value="0.015"/>
+    <xacro:property name="range_sensor_thickness" value="0.001"/>
+    <xacro:property name="range_sensor_mass" value="0.1"/>
+    <xacro:property name="range_sensor_color" value="black"/>
+
+    <!-- RANGE SENSOR LEFT LINK -->
+
+    <xacro:property name="range_sensor_left_angle" value="35"/>
+ 
+    <joint name="range_sensor_left_joint" type="fixed">
+        <parent link="chassis"/>
+        <child link="range_sensor_left"/>
+        <origin xyz="${chassis_radius * cos( radians( range_sensor_left_angle ) )} 
+                     ${chassis_radius * sin( radians( range_sensor_left_angle ) )}
+                     0"
+                rpy="0 0 ${radians( range_sensor_left_angle )}"/>
+    </joint>
+
+    <link name="range_sensor_left">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -${pi/2} 0"/>
+            <geometry>
+                <cylinder radius="${range_sensor_radius}" length="${range_sensor_thickness}"/>
+            </geometry>
+            <material name="${range_sensor_color}"/>
+        </visual>
+    </link>
+
+    <!-- RANGE SENSOR FRONT LINK -->
+
+    <xacro:property name="range_sensor_front_angle" value="0"/>
+ 
+    <joint name="range_sensor_front_joint" type="fixed">
+        <parent link="chassis"/>
+        <child link="range_sensor_front"/>
+        <origin xyz="${chassis_radius * cos( radians( range_sensor_front_angle ) )} 
+                     ${chassis_radius * sin( radians( range_sensor_front_angle ) )}
+                     0"
+                rpy="0 0 ${radians( range_sensor_front_angle )}"/>
+    </joint>
+
+    <link name="range_sensor_front">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -${pi/2} 0"/>
+            <geometry>
+                <cylinder radius="${range_sensor_radius}" length="${range_sensor_thickness}"/>
+            </geometry>
+            <material name="${range_sensor_color}"/>
+        </visual>
+    </link>
+
+    <!-- RANGE SENSOR RIGHT LINK -->
+
+    <xacro:property name="range_sensor_right_angle" value="-35"/>
+ 
+    <joint name="range_sensor_right_joint" type="fixed">
+        <parent link="chassis"/>
+        <child link="range_sensor_right"/>
+        <origin xyz="${chassis_radius * cos( radians( range_sensor_right_angle ) )} 
+                     ${chassis_radius * sin( radians( range_sensor_right_angle ) )}
+                     0"
+                rpy="0 0 ${radians( range_sensor_right_angle )}"/>
+    </joint>
+
+    <link name="range_sensor_right">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -${pi/2} 0"/>
+            <geometry>
+                <cylinder radius="${range_sensor_radius}" length="${range_sensor_thickness}"/>
+            </geometry>
+            <material name="${range_sensor_color}"/>
+        </visual>
+    </link>
+
+</robot>
