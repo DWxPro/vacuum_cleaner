@@ -1,27 +1,7 @@
-// Copyright 2021 ros2_control Development Team
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include "include/diffbot_system.hpp"
 
-#include <chrono>
-#include <cmath>
-#include <limits>
-#include <memory>
-#include <vector>
-
-#include "hardware_interface/types/hardware_interface_type_values.hpp"
-#include "rclcpp/rclcpp.hpp"
+#define DEBUG_RANGE(x,...)    //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
+#define DEBUG_WHEELS(x,...)   //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
 
 namespace vacuum_cleaner
 {
@@ -34,80 +14,30 @@ hardware_interface::CallbackReturn VacuumCleanerHardware::on_init(const hardware
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  // setup parameters
-  params_.left_wheel_name = info_.hardware_parameters["left_wheel_name"];
-  params_.right_wheel_name = info_.hardware_parameters["right_wheel_name"];
-  params_.enc_counts_per_rev = std::stoi(info_.hardware_parameters["enc_counts_per_rev"]);
-  params_.wheel_radius_mm = std::stoi(info_.hardware_parameters["wheel_radius_mm"]);
+  // communication
+  communication_.motors_port = info_.hardware_parameters["motors_port"];
+  communication_.motors_baud_rate = std::stoi(info_.hardware_parameters["motors_baud_rate"]);
+  communication_.motors_timeout_ms = std::stoi(info_.hardware_parameters["motors_timeout_ms"]);
+
+  communication_.sensors_port = info_.hardware_parameters["sensors_port"];
+  communication_.sensors_baud_rate = std::stoi(info_.hardware_parameters["sensors_baud_rate"]);
+  communication_.sensors_timeout_ms = std::stoi(info_.hardware_parameters["sensors_timeout_ms"]);
+
+  // left wheel
+  wheel_left_.name = info_.hardware_parameters["left_wheel_name"];
+  wheel_left_.rads_per_count = ( 2 * M_PI ) / std::stoi(info_.hardware_parameters["left_encoder_resolution"]);
+  wheel_left_.radius = std::stoi(info_.hardware_parameters["left_wheel_radius"]);
+
+  // right wheel
+  wheel_right_.name = info_.hardware_parameters["right_wheel_name"];
+  wheel_right_.rads_per_count = ( 2 * M_PI ) / std::stoi(info_.hardware_parameters["right_encoder_resolution"]);
+  wheel_right_.radius = std::stoi(info_.hardware_parameters["right_wheel_radius"]);
   
-  params_.motors_port = info_.hardware_parameters["motors_port"];
-  params_.motors_baud_rate = std::stoi(info_.hardware_parameters["motors_baud_rate"]);
-  params_.motors_timeout_ms = std::stoi(info_.hardware_parameters["motors_timeout_ms"]);
+  // range sensors
+  range_sensor_left_.name = info_.hardware_parameters["range_sensor_left_name"];
+  range_sensor_front_.name = info_.hardware_parameters["range_sensor_front_name"];
+  range_sensor_right_.name = info_.hardware_parameters["range_sensor_right_name"];
 
-  params_.sensors_port = info_.hardware_parameters["sensors_port"];
-  params_.sensors_baud_rate = std::stoi(info_.hardware_parameters["sensors_baud_rate"]);
-  params_.sensors_timeout_ms = std::stoi(info_.hardware_parameters["sensors_timeout_ms"]);
-
-  params_.range_sensor_left_name = info_.hardware_parameters["range_sensor_left_name"];
-  params_.range_sensor_front_name = info_.hardware_parameters["range_sensor_front_name"];
-  params_.range_sensor_right_name = info_.hardware_parameters["range_sensor_right_name"];
-
-  wheel_l_.setup(params_.left_wheel_name, params_.enc_counts_per_rev);
-  wheel_r_.setup(params_.right_wheel_name, params_.enc_counts_per_rev);
-
-  test = 5;
-
-  /*
-  // check URDF configurations
-  for (const hardware_interface::ComponentInfo & joint : info_.joints)
-  {
-    // DiffBotSystem has exactly two states and one command interface on each joint
-    if (joint.command_interfaces.size() != 1)
-    {
-      RCLCPP_FATAL(
-        rclcpp::get_logger("vacuumCleanerHardware"),
-        "Joint '%s' has %zu command interfaces found. 1 expected.", joint.name.c_str(),
-        joint.command_interfaces.size());
-      return hardware_interface::CallbackReturn::ERROR;
-    }
-
-    if (joint.command_interfaces[0].name != hardware_interface::HW_IF_VELOCITY)
-    {
-      RCLCPP_FATAL(
-        rclcpp::get_logger("vacuumCleanerHardware"),
-        "Joint '%s' have %s command interfaces found. '%s' expected.", joint.name.c_str(),
-        joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
-      return hardware_interface::CallbackReturn::ERROR;
-    }
-
-    if (joint.state_interfaces.size() != 2)
-    {
-      RCLCPP_FATAL(
-        rclcpp::get_logger("vacuumCleanerHardware"),
-        "Joint '%s' has %zu state interface. 2 expected.", joint.name.c_str(),
-        joint.state_interfaces.size());
-      return hardware_interface::CallbackReturn::ERROR;
-    }
-
-    if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
-    {
-      RCLCPP_FATAL(
-        rclcpp::get_logger("vacuumCleanerHardware"),
-        "Joint '%s' have '%s' as first state interface. '%s' expected.", joint.name.c_str(),
-        joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
-      return hardware_interface::CallbackReturn::ERROR;
-    }
-
-    if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY)
-    {
-      RCLCPP_FATAL(
-        rclcpp::get_logger("vacuumCleanerHardware"),
-        "Joint '%s' have '%s' as second state interface. '%s' expected.", joint.name.c_str(),
-        joint.state_interfaces[1].name.c_str(), hardware_interface::HW_IF_VELOCITY);
-      return hardware_interface::CallbackReturn::ERROR;
-    }
-  }
-*/
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -116,14 +46,14 @@ std::vector<hardware_interface::StateInterface> VacuumCleanerHardware::export_st
   // export state interfaces
   std::vector<hardware_interface::StateInterface> state_interfaces;
 
-  state_interfaces.emplace_back(hardware_interface::StateInterface(params_.left_wheel_name, "position", &wheel_l_.pos));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(params_.left_wheel_name, "velocity", &wheel_l_.vel));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(params_.right_wheel_name, "position", &wheel_r_.pos));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(params_.right_wheel_name, "velocity", &wheel_r_.vel));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_left_.name, "position", &wheel_left_.position));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_left_.name, "velocity", &wheel_left_.velocity));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_right_.name, "position", &wheel_right_.position));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_right_.name, "velocity", &wheel_right_.velocity));
   
-  state_interfaces.emplace_back(hardware_interface::StateInterface(params_.range_sensor_left_name, "range", &test));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(params_.range_sensor_front_name, "range", &test));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(params_.range_sensor_right_name, "range", &test));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(range_sensor_left_.name, "range", &range_sensor_left_.range));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(range_sensor_front_.name, "range", &range_sensor_front_.range));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(range_sensor_right_.name, "range", &range_sensor_right_.range));
 
   return state_interfaces;
 }
@@ -133,8 +63,8 @@ std::vector<hardware_interface::CommandInterface> VacuumCleanerHardware::export_
   // import command interfaces
   std::vector<hardware_interface::CommandInterface> command_interfaces;
 
-  command_interfaces.emplace_back(hardware_interface::CommandInterface(params_.left_wheel_name, "velocity", &wheel_l_.cmd));
-  command_interfaces.emplace_back(hardware_interface::CommandInterface(params_.right_wheel_name, "velocity", &wheel_r_.cmd));
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(wheel_left_.name, "velocity", &wheel_left_.command));
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(wheel_right_.name, "velocity", &wheel_right_.command));
 
   return command_interfaces;
 }
@@ -147,16 +77,17 @@ hardware_interface::CallbackReturn VacuumCleanerHardware::on_configure(const rcl
   if (motors_.connected()) {motors_.disconnect();}
   if (sensors_.connected()) {sensors_.disconnect();}
   
-  motors_.connect(params_.motors_port, params_.motors_baud_rate, params_.motors_timeout_ms);
-  sensors_.connect(params_.sensors_port, params_.sensors_baud_rate, params_.sensors_timeout_ms);
+  motors_.connect(communication_.motors_port, communication_.motors_baud_rate, communication_.motors_timeout_ms);
+  sensors_.connect(communication_.sensors_port, communication_.sensors_baud_rate, communication_.sensors_timeout_ms);
 
   bool motors_connection_status = motors_.connected();
   bool sensors_connection_status = sensors_.connected();
 
+  // print connection status
   RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"),"Motors Connection Status: %s", motors_connection_status ? "true" : "false");
   RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"),"Sensors Connection Status: %s", sensors_connection_status ? "true" : "false");
-  RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "Successfully configured!");
   
+  RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "Successfully configured!");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -177,8 +108,9 @@ hardware_interface::CallbackReturn VacuumCleanerHardware::on_activate(const rclc
   RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "Activating ...please wait...");
   
   // check Arduino connection before startup
-  if (!motors_.connected() || !motors_.connected())
+  if (!motors_.connected() || !sensors_.connected())
   {
+    RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "communication error");
     return hardware_interface::CallbackReturn::ERROR;
   }
   
@@ -207,26 +139,27 @@ hardware_interface::return_type VacuumCleanerHardware::read(const rclcpp::Time &
   // read encoder values
   if (!motors_.connected() || !motors_.connected())
   {
+    RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "communication error");
     return hardware_interface::return_type::ERROR;
   }
 
   // motors
-  motors_.read_encoder_values(wheel_l_.enc, wheel_r_.enc);
+  motors_.read_encoder_values(wheel_left_.counts, wheel_right_.counts);
+
+  wheel_left_.position = wheel_left_.counts * wheel_left_.rads_per_count;
+  wheel_left_.position = wheel_left_.counts * wheel_left_.rads_per_count;
 
   double delta_seconds = period.seconds();
+  wheel_left_.velocity = ( wheel_left_.position - wheel_left_.previous_positon ) / delta_seconds;   
+  wheel_right_.velocity = ( wheel_right_.position - wheel_right_.previous_positon ) / delta_seconds;   
+  
+  wheel_left_.previous_positon = wheel_left_.position;
+  wheel_right_.previous_positon = wheel_right_.position;
 
-  double pos_prev = wheel_l_.pos;
-  wheel_l_.pos = wheel_l_.calc_enc_angle();
-  wheel_l_.vel = (wheel_l_.pos - pos_prev) / delta_seconds;
-
-  pos_prev = wheel_r_.pos;
-  wheel_r_.pos = wheel_r_.calc_enc_angle();
-  wheel_r_.vel = (wheel_r_.pos - pos_prev) / delta_seconds;
- 
   // sensors
-  test += 1;
-  RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"),"range_sensor_front: %f", test);
-
+  sensors_.read_range_values(range_sensor_left_.range, range_sensor_front_.range, range_sensor_right_.range);
+  
+  DEBUG_RANGE("range left: %f range front: %f range right: %f", range_sensor_left_.range, range_sensor_front_.range, range_sensor_right_.range);
   return hardware_interface::return_type::OK;
 }
 
@@ -236,13 +169,13 @@ hardware_interface::return_type VacuumCleanerHardware::write(const rclcpp::Time 
   if (!motors_.connected() || !motors_.connected())
   {
     return hardware_interface::return_type::ERROR;
+    RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "communication error");
   }
   
-  RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"),"cmd wheel_l_: %f", wheel_l_.cmd);
-  RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"),"motor cmd: %f", wheel_l_.cmd * params_.wheel_radius_mm);
-  
-  motors_.set_wheel_speeds(wheel_l_.cmd * params_.wheel_radius_mm, wheel_r_.cmd * params_.wheel_radius_mm);
+  motors_.set_wheel_speeds(wheel_left_.command * wheel_left_.radius, wheel_right_.command * wheel_right_.radius);
 
+  DEBUG_WHEELS("command left: %f comand right: %f", wheel_left_.command, wheel_right_.command);
+  DEBUG_WHEELS("speed left: %f speed right: %f", wheel_left_.command * wheel_left_.radius, wheel_right_.command * wheel_right_.radius);
   return hardware_interface::return_type::OK;
 }
 

@@ -20,24 +20,38 @@ LibSerial::BaudRate convert_baud_rate(int baud_rate)
   }
 }
 
-void ArduinoCom::connect(std::string serial_device, int baud_rate, int timeout_ms)
+std::vector<std::string> extract_values(const std::string& response) {
+    std::istringstream iss(response);
+    std::vector<std::string> values;
+    std::string value;
+
+    while (std::getline(iss, value, ' ')) {
+        values.push_back(value);
+    }
+
+    return values;
+}
+
+// SerialCom
+void SerialCom::connect(std::string serial_device, int baud_rate, int timeout_ms)
 {  
   timeout_ms_ = timeout_ms;
   serial_connection_.Open(serial_device);
   serial_connection_.SetBaudRate(convert_baud_rate(baud_rate));
 }
 
-void ArduinoCom::disconnect()
+void SerialCom::disconnect()
 {
   serial_connection_.Close();
 }
 
-bool ArduinoCom::connected() const
+bool SerialCom::connected() const
 {
   return serial_connection_.IsOpen();
 }
 
-void ArduinoCom::read_encoder_values(double &counts_left, double &counts_right)
+// MotorsCom
+void MotorsCom::read_encoder_values(double &counts_left, double &counts_right)
 {
   serial_connection_.FlushIOBuffers();
   serial_connection_.Write(std::to_string(CMD_GET_ENCODER_PULSES) + "\n");
@@ -52,77 +66,121 @@ void ArduinoCom::read_encoder_values(double &counts_left, double &counts_right)
     std::cerr << "motor connection has timed out." << std::endl ;
   }
 
-  // TODO: change seperation
+  std::vector<std::string> values = extract_values(response);
 
-  std::string delimiter = " ";
-  size_t del_pos = response.find(delimiter);
-  std::string pulses_left = response.substr(0, del_pos);
-  std::string pulses_right = response.substr(del_pos + delimiter.length());
-
-  counts_left = std::atoi(pulses_left.c_str());
-  counts_right = std::atoi(pulses_right.c_str());
+  counts_left = std::atoi(values[0].c_str());
+  counts_right = std::atoi(values[1].c_str());
 }
 
-void ArduinoCom::reset_encoder_values()
+void MotorsCom::reset_encoder_values()
 {
   std::stringstream ss;
   ss << CMD_RESET_ENCODER_PULSES << "\n";
   serial_connection_.Write(ss.str());
 }
 
-void ArduinoCom::enable_wheels()
+void MotorsCom::enable_wheels()
 {
   std::stringstream ss;
   ss << CMD_ENABLE_WHEELS << " " << "true" << "\n";
   serial_connection_.Write(ss.str());
 }
 
-void ArduinoCom::disable_wheels()
+void MotorsCom::disable_wheels()
 {
   std::stringstream ss;
   ss << CMD_ENABLE_WHEELS << " " << "false" << "\n";
   serial_connection_.Write(ss.str());
 }
 
-void ArduinoCom::set_wheel_speeds(int speed_left, int speed_right)
+void MotorsCom::set_wheel_speeds(int speed_left, int speed_right)
 {
   std::stringstream ss;
   ss << CMD_SETPOINT_WHEELS << " " << (speed_left) << " " << (speed_right) << "\n";
   serial_connection_.Write(ss.str());
 }
 
-void ArduinoCom::enable_sweeper()
+void MotorsCom::enable_sweeper()
 {
   std::stringstream ss;
   ss << CMD_ENABLE_SWEEPER << " " << "true" << "\n";
   serial_connection_.Write(ss.str());
 }
 
-void ArduinoCom::disable_sweeper()
+void MotorsCom::disable_sweeper()
 {
   std::stringstream ss;
   ss << CMD_ENABLE_SWEEPER << " " << "false" << "\n";
   serial_connection_.Write(ss.str());
 }
 
-void ArduinoCom::enable_vacuum()
+void MotorsCom::enable_vacuum()
 {
   std::stringstream ss;
   ss << CMD_ENABLE_VACUUM << " " << "true" << "\n";
   serial_connection_.Write(ss.str());
 }
 
-void ArduinoCom::disable_vacuum()
+void MotorsCom::disable_vacuum()
 {
   std::stringstream ss;
   ss << CMD_ENABLE_VACUUM << " " << "false" << "\n";
   serial_connection_.Write(ss.str());
 }
 
-void ArduinoCom::set_vacuum_speed(int val)
+void MotorsCom::set_vacuum_speed(int val)
 {
   std::stringstream ss;
   ss << CMD_SETPOIN_VACUUM << " " << val << "\n";
   serial_connection_.Write(ss.str());
 }
 
+//void MotorsCom::get_settings()
+//{
+//
+//}
+
+void MotorsCom::set_settings(std::string setting, double value)
+{
+  std::stringstream ss;
+  ss << CMD_SET_SETTINGS << " {" << (setting) << ":" << (value) << "\n";
+  serial_connection_.Write(ss.str());
+}
+
+// SensorsCom
+void SensorsCom::read_range_values(double &range_left, double &range_front, double &range_right)
+{
+  serial_connection_.FlushIOBuffers();
+  serial_connection_.Write(std::to_string(CMD_GET_RANGE_VALUES) + "\n");
+
+  std::string response = "";
+  try
+  {
+    serial_connection_.ReadLine(response, '\n', timeout_ms_);
+  }
+  catch (const LibSerial::ReadTimeout&)
+  {
+    std::cerr << "motor connection has timed out." << std::endl ;
+  }
+
+  std::vector<std::string> values = extract_values(response);
+
+  range_right = std::atoi(values[0].c_str());
+  range_front = std::atoi(values[1].c_str());
+  range_left = std::atoi(values[1].c_str());
+}
+
+//void SensorsCom::read_button_states(bool circle, bool start, bool home)
+//{
+//
+//}
+//
+//void SensorsCom::set_LEDs(bool circle, bool start_green, bool start_red, bool home)
+//{
+//
+//}
+//
+//void SensorsCom::read_limit_switches(bool &limit_switch_left, bool &limit_switch_right)
+//{
+//
+//}

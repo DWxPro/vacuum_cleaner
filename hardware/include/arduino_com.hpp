@@ -25,16 +25,23 @@
 #define CMD_GET_LIMIT_SWITCH_STATES   3   // [right,left]
 #define CMD_SET_LEDS                  4   // [circle,start-grün,start-rot,home]
 
-class ArduinoCom 
+class SerialCom 
 {
 public:
-    ArduinoCom() = default;
+    SerialCom() = default;
 
     // communication
     void connect(std::string serial_device, int baud_rate, int timeout_ms);
     void disconnect();
     bool connected() const;
-    
+
+    LibSerial::SerialPort serial_connection_;
+    int timeout_ms_;
+};
+
+class MotorsCom : public SerialCom
+{
+public:
     // encoders
     void read_encoder_values(double &counts_left, double &counts_right);
     void reset_encoder_values();
@@ -54,9 +61,13 @@ public:
     void disable_sweeper();
 
     // settings
-    //void get_settings();
-    //void set_settings();
+    void get_settings();
+    void set_settings(std::string setting, double value);
+};
 
+class SensorsCom : public SerialCom
+{
+public:
     // range sensors
     void read_range_values(double &range_left, double &range_front, double &range_right);
 
@@ -66,11 +77,6 @@ public:
 
     // limit switches
     void read_limit_switches(bool &limit_switch_left, bool &limit_switch_right);
-
-private:
-    LibSerial::SerialPort serial_connection_;
-    int timeout_ms_;
-    Json::Value settings_;
 };
 
 
