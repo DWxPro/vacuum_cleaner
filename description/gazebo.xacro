@@ -237,7 +237,7 @@
         <!-- ros2_control -->
         <gazebo>
             <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
-                <parameters>$(find vacuum_cleaner)/config/diffbot_controllers.yaml</parameters>
+                <parameters>$(find vacuum_cleaner)/config/controllers.yaml</parameters>
                 <parameters>$(find vacuum_cleaner)/config/use_sim_time.yaml</parameters>
             </plugin>
         </gazebo>

@@ -18,7 +18,7 @@ def generate_launch_description():
     rviz_file_name = 'presettings.rviz'
     joystick_file_name = 'joystick.yaml'
     twist_mux_file_name = 'twist_mux.yaml'
-    controller_settings_file_name = 'diffbot_controllers.yaml'
+    controller_settings_file_name = 'controllers.yaml'
     rplidar_port = '/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0'
 
     path_package_share = FindPackageShare(package=package_name).find(package_name)
