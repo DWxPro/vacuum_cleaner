@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- SWEEPER LEFT LINK -->
+    <xacro:property name="sweeper_plate_radius" value="0.0125"/>
+    <xacro:property name="sweeper_plate_thickness" value="0.0001"/>
+    <xacro:property name="sweeper_plate_mass" value="0.0055"/>
+    <xacro:property name="sweeper_brush_length" value="0.071"/>
+    <xacro:property name="sweeper_brush_width" value="0.006"/>
+    <xacro:property name="sweeper_brush_height" value="0.003"/>
+    <xacro:property name="sweeper_brush_angle" value="7"/>
+    <xacro:property name="sweeper_brush_mass" value="0.0055"/>
+    <xacro:property name="sweeper_color" value="black"/>
+
+    <xacro:property name="sweeper_offset_x" value="0.09"/>
+    <xacro:property name="sweeper_separation" value="0.1825"/>
+
+    <joint name="sweeper_left_joint" type="fixed">
+        <parent link="chassis"/>
+        <child link="sweeper_left"/>
+        <origin xyz="${sweeper_offset_x} ${sweeper_separation/2} ${-chassis_thickness/2 - sweeper_plate_thickness/2}"/>
+        <axis xyz="0 0 -1"/>
+    </joint>
+
+    <link name="sweeper_left">
+        <visual>
+            <geometry>
+                <cylinder radius="${sweeper_plate_radius}" length="${sweeper_plate_thickness}"/>
+            </geometry>
+            <material name="${sweeper_color}"/>
+        </visual>
+        <visual>
+            <origin xyz="${sweeper_brush_length/2 * cos( 0 )}
+                         ${sweeper_brush_length/2 * sin( 0 )}
+                         ${-(sweeper_brush_length/2 * sin(radians( sweeper_brush_angle )))}" 
+                    rpy="0
+                         ${radians( sweeper_brush_angle )}
+                         0" /> 
+            <geometry>
+                <box size="${sweeper_brush_length} ${sweeper_brush_width} ${sweeper_brush_height}"/>
+            </geometry>
+            <material name="${sweeper_color}"/>
+        </visual>
+        <visual>
+            <origin xyz="${sweeper_brush_length/2 * cos( 2/3 * pi )}
+                         ${sweeper_brush_length/2 * sin( 2/3 * pi )}
+                         ${-(sweeper_brush_length/2 * sin(radians( sweeper_brush_angle )))}" 
+                    rpy="0
+                         ${radians( sweeper_brush_angle )}
+                         ${ 2/3 * pi }" />
+            <geometry>
+                <box size="${sweeper_brush_length} ${sweeper_brush_width} ${sweeper_brush_height}"/>
+            </geometry>
+            <material name="${sweeper_color}"/>
+        </visual>
+        <visual>
+            <origin xyz="${sweeper_brush_length/2 * cos( -2/3 * pi )}
+                         ${sweeper_brush_length/2 * sin( -2/3 * pi )}
+                         ${-(sweeper_brush_length/2 * sin(radians( sweeper_brush_angle )))}" 
+                    rpy="0
+                         ${radians( sweeper_brush_angle )}
+                         ${ -2/3 * pi }" />
+            <geometry>
+                <box size="${sweeper_brush_length} ${sweeper_brush_width} ${sweeper_brush_height}"/>
+            </geometry>
+            <material name="${sweeper_color}"/>
+        </visual>
+        <xacro:inertial_cylinder mass="${sweeper_brush_mass}" radius="${sweeper_plate_radius}" length="${sweeper_plate_thickness}">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_cylinder>
+    </link> 
+
+    <!-- SWEEPER RIGHT LINK -->
+    <joint name="sweeper_right_joint" type="fixed">
+        <parent link="chassis"/>
+        <child link="sweeper_right"/>
+        <origin xyz="${sweeper_offset_x} -${sweeper_separation/2} ${-chassis_thickness/2 - sweeper_plate_thickness/2}"/>
+        <axis xyz="0 0 -1"/>
+    </joint>
+
+    <link name="sweeper_right">
+        <visual>
+            <geometry>
+                <cylinder radius="${sweeper_plate_radius}" length="${sweeper_plate_thickness}"/>
+            </geometry>
+            <material name="${sweeper_color}"/>
+        </visual>
+        <visual>
+            <origin xyz="${sweeper_brush_length/2 * cos( 0 )}
+                         ${sweeper_brush_length/2 * sin( 0 )}
+                         ${-(sweeper_brush_length/2 * sin(radians( sweeper_brush_angle )))}" 
+                    rpy="0
+                         ${radians( sweeper_brush_angle )}
+                         0" /> 
+            <geometry>
+                <box size="${sweeper_brush_length} ${sweeper_brush_width} ${sweeper_brush_height}"/>
+            </geometry>
+            <material name="${sweeper_color}"/>
+        </visual>
+        <visual>
+            <origin xyz="${sweeper_brush_length/2 * cos( 2/3 * pi )}
+                         ${sweeper_brush_length/2 * sin( 2/3 * pi )}
+                         ${-(sweeper_brush_length/2 * sin(radians( sweeper_brush_angle )))}" 
+                    rpy="0
+                         ${radians( sweeper_brush_angle )}
+                         ${ 2/3 * pi }" />
+            <geometry>
+                <box size="${sweeper_brush_length} ${sweeper_brush_width} ${sweeper_brush_height}"/>
+            </geometry>
+            <material name="${sweeper_color}"/>
+        </visual>
+        <visual>
+            <origin xyz="${sweeper_brush_length/2 * cos( -2/3 * pi )}
+                         ${sweeper_brush_length/2 * sin( -2/3 * pi )}
+                         ${-(sweeper_brush_length/2 * sin(radians( sweeper_brush_angle )))}" 
+                    rpy="0
+                         ${radians( sweeper_brush_angle )}
+                         ${ -2/3 * pi }" />
+            <geometry>
+                <box size="${sweeper_brush_length} ${sweeper_brush_width} ${sweeper_brush_height}"/>
+            </geometry>
+            <material name="${sweeper_color}"/>
+        </visual>
+        <xacro:inertial_cylinder mass="${sweeper_brush_mass}" radius="${sweeper_plate_radius}" length="${sweeper_plate_thickness}">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_cylinder>
+    </link> 
+
+</robot>
