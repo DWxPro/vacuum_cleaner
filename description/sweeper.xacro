@@ -15,7 +15,7 @@
     <xacro:property name="sweeper_offset_x" value="0.09"/>
     <xacro:property name="sweeper_separation" value="0.1825"/>
 
-    <joint name="sweeper_left_joint" type="fixed">
+    <joint name="sweeper_left_joint" type="continuous">
         <parent link="chassis"/>
         <child link="sweeper_left"/>
         <origin xyz="${sweeper_offset_x} ${sweeper_separation/2} ${-chassis_thickness/2 - sweeper_plate_thickness/2}"/>
@@ -71,7 +71,7 @@
     </link> 
 
     <!-- SWEEPER RIGHT LINK -->
-    <joint name="sweeper_right_joint" type="fixed">
+    <joint name="sweeper_right_joint" type="continuous">
         <parent link="chassis"/>
         <child link="sweeper_right"/>
         <origin xyz="${sweeper_offset_x} -${sweeper_separation/2} ${-chassis_thickness/2 - sweeper_plate_thickness/2}"/>

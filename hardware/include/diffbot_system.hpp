@@ -27,48 +27,69 @@ namespace vacuum_cleaner
 class VacuumCleanerHardware : public hardware_interface::SystemInterface
 {
 
-struct CommunicationParameters
+struct Communication
 {
-  int enc_counts_per_rev = 0;
-  int wheel_radius_mm = 0;
-
   std::string motors_port = "";
-  int motors_baud_rate = 0;
-  int motors_timeout_ms = 0;
+  int motors_baud_rate = 0;       // [-]
+  int motors_timeout_ms = 0;      // [ms]
 
   std::string sensors_port = "";
-  int sensors_baud_rate = 0;
-  int sensors_timeout_ms = 0;
-
-  std::string range_sensor_left_name = "";
-  std::string range_sensor_front_name = "";
-  std::string range_sensor_right_name = "";
+  int sensors_baud_rate = 0;      // [-]
+  int sensors_timeout_ms = 0;     // [ms]
 };
 
-struct WheelParameters
+struct Wheel
 {
   std::string name = "";
-  double counts = 0;            // [-]
-  double command = 0;           // [rad/s]
-  double position = 0;          // [rad]
-  double previous_positon = 0;  // [rad]
-  double velocity = 0;          // [rad/s]
-  double rads_per_count = 0;    // [-]
-  double radius = 0;            // [mm]
+  double resolution = 0;          // [-]
+  double rads_per_count = 0;      // [-]
+  double radius = 0;              // [mm]
+  double counts = 0;              // [-]
+  double command = 0;             // [rad/s]
+  double position = 0;            // [rad]
+  double previous_positon = 0;    // [rad]
+  double velocity = 0;            // [rad/s]
 };
 
-struct RangeSensorParameters
+struct Vacuum
 {
   std::string name = "";
-  double range = 0;             // [0-1023]
+  double command = 0;             // [0-255]
+  double previous_command = 0;    // [0-255]
 };
 
-struct DIDOParameters
+struct Sweeper
 {
   std::string name = "";
-  double state = false;         // [0-1023]
+  double command = 0;             // [1/0]
+  double velocity = 0;            // [rad/s]
+  double position = 0;            // [rad]
+  double max_velocity = 0;        // [rad/s]
 };
 
+struct RangeSensor
+{
+  std::string name = "";
+  double range = 0;               // [0-1023]
+};
+
+struct UserInterface
+{
+  std::string name = "";
+  double button_circle = 0;       // [1/0]
+  double button_start = 0;        // [1/0]
+  double button_home = 0;         // [1/0]
+  double LED_circle = 0;          // [1/0]
+  double LED_start_green = 0;     // [1/0]
+  double LED_start_red = 0;       // [1/0]
+  double LED_home = 0;            // [1/0]
+};
+
+struct LimitSwitch
+{
+  std::string name = "";
+  double state = 0;               // [1/0]
+};
 
 public:
   RCLCPP_SHARED_PTR_DEFINITIONS(VacuumCleanerHardware);
@@ -105,19 +126,26 @@ private:
   MotorsCom motors_;
   SensorsCom sensors_;
   
-  CommunicationParameters communication_;
+  Communication communication_;
   
-  WheelParameters wheel_left_;
-  WheelParameters wheel_right_;
+  Wheel wheel_left_;
+  Wheel wheel_right_;
 
-  RangeSensorParameters range_sensor_left_;
-  RangeSensorParameters range_sensor_front_;
-  RangeSensorParameters range_sensor_right_;  
+  Vacuum vacuum_;
+
+  Sweeper sweeper_left_;
+  Sweeper sweeper_right_;
+
+  RangeSensor range_sensor_left_;
+  RangeSensor range_sensor_front_;
+  RangeSensor range_sensor_right_;  
   
-  DIDOParameters home_button_;
-  DIDOParameters home_button_LED_;
+  UserInterface user_interface_;
+
+  LimitSwitch limit_switch_left_;
+  LimitSwitch limit_switch_right_;
+
 };
-
 }  // namespace vacuum_cleaner
 
 #endif  // VACUUM_CLEANER__DIFFBOT_SYSTEM_HPP_

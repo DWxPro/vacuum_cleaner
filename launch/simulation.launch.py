@@ -53,19 +53,28 @@ def generate_launch_description():
     # running inside gazebo
 
     # diffbot_base_controller
-    diffbot_base_controller_node = Node(
+    diffbot_base_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["diffbot_base_controller", "--controller-manager", "/controller_manager"],
     )
 
     # joint_state_broadcaster
-    joint_state_broadcaster_node = Node(
+    joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"]
     )
-    
+
+    # sweeper_controller
+    sweeper_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["sweeper_controller", "-c", "/controller_manager"],
+    )
+
+    # gpio_simulation
+
     # robot_state_publisher (tf)
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
@@ -73,7 +82,7 @@ def generate_launch_description():
         output='screen',
         parameters=[{'robot_description': robot_description, 'use_sim_time': True}]
     )
-
+    
     # visualize robot
     rviz_node = Node(
         package="rviz2",
@@ -82,13 +91,7 @@ def generate_launch_description():
         output="log",
         arguments=["-d", rviz_settings],
     )
-
-    # gazebo
-    gazebo_node = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([os.path.join(
-                    path_gazebo_ros_share, 'launch', 'gazebo.launch.py')])
-    )
-
+    
     # slam_toolbox
     slam_params_file = LaunchConfiguration('slam_params_file')
     
@@ -103,22 +106,7 @@ def generate_launch_description():
         output='screen',
         namespace=''
     )
-
-    # spawn entity
-    spawn_entity_node = Node(
-        package='gazebo_ros',
-        executable='spawn_entity.py',
-        arguments=['-topic', 'robot_description','-entity', 'robot_vacuum_cleaner'],
-        output='screen'
-    )
-
-    # world
-    declare_gazebo_world = DeclareLaunchArgument(
-        name='world',
-        default_value= world_settings,
-        description='Full path to the world model file to load'
-    )
-    
+       
     # twist_mux
     twist_mux_node = Node(
             package="twist_mux",
@@ -142,21 +130,42 @@ def generate_launch_description():
             remappings=[('/cmd_vel','/cmd_vel_joy')]
     )
 
+    # gazebo
+    gazebo_node = IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([os.path.join(
+                    path_gazebo_ros_share, 'launch', 'gazebo.launch.py')])
+    )
+
+    # spawn entity
+    spawn_entity_node = Node(
+        package='gazebo_ros',
+        executable='spawn_entity.py',
+        arguments=['-topic', 'robot_description','-entity', 'robot_vacuum_cleaner'],
+        output='screen'
+    )
+
+    # world
+    declare_gazebo_world = DeclareLaunchArgument(
+        name='world',
+        default_value= world_settings,
+        description='Full path to the world model file to load'
+    )
 
     # create launch description
     ld = LaunchDescription()
     
     ld.add_action(robot_state_publisher_node)
-    ld.add_action(declare_gazebo_world)
+    #ld.add_action(declare_gazebo_world)
     ld.add_action(gazebo_node)
     ld.add_action(spawn_entity_node)
-    ld.add_action(diffbot_base_controller_node)
-    ld.add_action(joint_state_broadcaster_node)
-    ld.add_action(declare_slam_parameters)
-    ld.add_action(slam_toolbox_node)
+    ld.add_action(diffbot_base_controller_spawner)
+    ld.add_action(joint_state_broadcaster_spawner)
+    ld.add_action(sweeper_controller_spawner)
+    #ld.add_action(declare_slam_parameters)
+    #ld.add_action(slam_toolbox_node)
     ld.add_action(rviz_node)
-    ld.add_action(twist_mux_node)
-    ld.add_action(joystick_node)
-    ld.add_action(teleop_twist_joy_node)
+    #ld.add_action(twist_mux_node)
+    #ld.add_action(joystick_node)
+    #ld.add_action(teleop_twist_joy_node)
 
     return ld

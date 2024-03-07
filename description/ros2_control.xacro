@@ -5,25 +5,7 @@
   <xacro:unless value="$(arg sim_mode)">
     <ros2_control name="vaccum_cleaner" type="system">
       <hardware>
-        <plugin>vacuum_cleaner/VacuumCleanerHardware</plugin>
-        <param name="left_wheel_name">left_wheel_joint</param>
-        <param name="right_wheel_name">right_wheel_joint</param>
-        <param name="left_encoder_resolution">575</param>
-        <param name="right_encoder_resolution">575</param>
-        <param name="left_wheel_radius">32</param>
-        <param name="right_wheel_radius">32</param>
-        <param name="motors_port">/dev/serial/by-id/usb-Arduino_RaspberryPi_Pico_644861E6228B85D3-if00</param>
-        <param name="motors_baud_rate">115200</param>
-        <param name="motors_timeout_ms">1000</param>
-        <param name="sensors_port">/dev/serial/by-id/usb-Arduino_RaspberryPi_Pico_304C61E62BB46493-if00</param>
-        <param name="sensors_baud_rate">115200</param>
-        <param name="sensors_timeout_ms">1000</param>
-        <param name="range_sensor_left_name">range_sensor_left</param>
-        <param name="range_sensor_front_name">range_sensor_front</param>
-        <param name="range_sensor_right_name">range_sensor_right</param>
-        <param name="home_butto_name">home_button</param>
-        <param name="home_button_LED_name">home_button_LED</param>
-        
+        <plugin>vacuum_cleaner/VacuumCleanerHardware</plugin>       
       </hardware>
       
       <joint name="left_wheel_joint">
@@ -37,6 +19,24 @@
         <state_interface name="position"/>
         <state_interface name="velocity"/>
       </joint>
+
+      <!--
+      <joint name="vacuum_joint">
+        <command_interface name="velocity"/>
+      </joint>
+      -->
+
+      <joint name="sweeper_left_joint">
+        <command_interface name="velocity"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+      <joint name="sweeper_right_joint">
+        <command_interface name="velocity"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>     
 
       <sensor name="range_sensor_left">
         <state_interface name="range"/>
@@ -54,8 +54,21 @@
       </sensor>
     
       <gpio name="user_interface">
-        <command_interface name="home_button_LED"/>
-        <state_interface name="home_button"/> 
+        <state_interface name="button_circle"/>
+        <state_interface name="button_start"/>
+        <state_interface name="button_home"/>
+        <command_interface name="LED_circle"/>
+        <command_interface name="LED_start_green"/>
+        <command_interface name="LED_start_red"/>
+        <command_interface name="LED_home"/>
+      </gpio>
+
+      <gpio name="limit_switch_left">
+        <state_interface name="state"/>
+      </gpio>
+
+      <gpio name="limit_switch_right">
+        <state_interface name="state"/>
       </gpio>
 
     </ros2_control>
@@ -65,23 +78,43 @@
   <xacro:if value="$(arg sim_mode)">
     <ros2_control name="GazeboSystem" type="system">
       <hardware>
-          <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        <plugin>gazebo_ros2_control/GazeboSystem</plugin>
       </hardware>
+
       <joint name="left_wheel_joint">
-          <command_interface name="velocity">
-              <param name="min">-10</param>
-              <param name="max">10</param>
-          </command_interface>
-          <state_interface name="velocity"/>
-          <state_interface name="position"/>
+        <command_interface name="velocity">
+          <param name="min">-10</param>
+          <param name="max">10</param>
+        </command_interface>
+        <state_interface name="velocity"/>
+        <state_interface name="position"/>
       </joint>
+
       <joint name="right_wheel_joint">
-          <command_interface name="velocity">
-              <param name="min">-10</param>
-              <param name="max">10</param>
-          </command_interface>
-          <state_interface name="velocity"/>
-          <state_interface name="position"/>
+        <command_interface name="velocity">
+          <param name="min">-10</param>
+          <param name="max">10</param>
+        </command_interface>
+        <state_interface name="velocity"/>
+        <state_interface name="position"/>
+      </joint>
+
+      <joint name="sweeper_left_joint">
+        <command_interface name="velocity">
+          <param name="min">0</param>
+          <param name="max">40</param>
+        </command_interface>
+        <state_interface name="velocity"/>
+        <state_interface name="position"/>
+      </joint>
+
+      <joint name="sweeper_right_joint">
+        <command_interface name="velocity">
+          <param name="min">0</param>
+          <param name="max">40</param>
+        </command_interface>
+        <state_interface name="velocity"/>
+        <state_interface name="position"/>
       </joint>
         
     </ros2_control>

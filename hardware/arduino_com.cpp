@@ -100,17 +100,31 @@ void MotorsCom::set_wheel_speeds(int speed_left, int speed_right)
   serial_connection_.Write(ss.str());
 }
 
-void MotorsCom::enable_sweeper()
+void MotorsCom::enable_sweeper_left()
 {
   std::stringstream ss;
-  ss << CMD_ENABLE_SWEEPER << " " << "true" << "\n";
+  ss << CMD_ENABLE_SWEEPER_LEFT << " " << "true" << "\n";
   serial_connection_.Write(ss.str());
 }
 
-void MotorsCom::disable_sweeper()
+void MotorsCom::enable_sweeper_right()
 {
   std::stringstream ss;
-  ss << CMD_ENABLE_SWEEPER << " " << "false" << "\n";
+  ss << CMD_ENABLE_SWEEPER_RIGHT << " " << "true" << "\n";
+  serial_connection_.Write(ss.str());
+}
+
+void MotorsCom::disable_sweeper_left()
+{
+  std::stringstream ss;
+  ss << CMD_ENABLE_SWEEPER_LEFT << " " << "false" << "\n";
+  serial_connection_.Write(ss.str());
+}
+
+void MotorsCom::disable_sweeper_right()
+{
+  std::stringstream ss;
+  ss << CMD_ENABLE_SWEEPER_RIGHT << " " << "false" << "\n";
   serial_connection_.Write(ss.str());
 }
 
@@ -131,7 +145,7 @@ void MotorsCom::disable_vacuum()
 void MotorsCom::set_vacuum_speed(int val)
 {
   std::stringstream ss;
-  ss << CMD_SETPOIN_VACUUM << " " << val << "\n";
+  ss << CMD_SETPOINT_VACUUM << " " << val << "\n";
   serial_connection_.Write(ss.str());
 }
 

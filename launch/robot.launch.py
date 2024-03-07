@@ -6,6 +6,9 @@ from launch_ros.actions import Node
 from launch import LaunchDescription
 from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessExit
+from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument
+from launch_ros.actions import LifecycleNode
 
 def generate_launch_description():
 
@@ -43,34 +46,41 @@ def generate_launch_description():
     )
 
     # diffbot_base_controller
-    diffbot_base_controller_node = Node(
+    diffbot_base_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["diffbot_base_controller", "--controller-manager", "/controller_manager"],
     )
 
     # joint_state_broadcaster
-    joint_state_broadcaster_node = Node(
+    joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
     )
 
-    # range_sensor_broadcaster_node
-    range_sensor_broadcaster_left_node = Node(
+    # range_sensor_broadcaster
+    range_sensor_broadcaster_left_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["range_sensor_broadcaster_left", "--controller-manager", "/controller_manager"],
     )
-    range_sensor_broadcaster_front_node = Node(
+    range_sensor_broadcaster_front_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["range_sensor_broadcaster_front", "--controller-manager", "/controller_manager"]
     )
-    range_sensor_broadcaster_right_node = Node(
+    range_sensor_broadcaster_right_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["range_sensor_broadcaster_right", "--controller-manager", "/controller_manager"]
+    )
+
+    # sweeper_controller
+    sweeper_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["sweeper_controller", "-c", "/controller_manager"],
     )
 
     # gpio_controller
@@ -98,12 +108,18 @@ def generate_launch_description():
     )
 
     # slam_toolbox
-    slam_toolbox_node = Node(
-        parameters=[{'params_file': slam_settings,'use_sim_time': False}],
+    slam_params_file = LaunchConfiguration('slam_params_file')
+    
+    declare_slam_parameters = DeclareLaunchArgument(
+        'slam_params_file', default_value=slam_settings)
+
+    slam_toolbox_node = LifecycleNode(
+        parameters=[slam_params_file,{'use_sim_time': False}],
         package='slam_toolbox',
         executable='async_slam_toolbox_node',
         name='slam_toolbox',
-        output='screen'
+        output='screen',
+        namespace=''
     )
     
     # twist_mux
@@ -140,14 +156,16 @@ def generate_launch_description():
 
     ld.add_action(control_node)
     ld.add_action(robot_state_publisher_node)
-    ld.add_action(diffbot_base_controller_node)
-    ld.add_action(joint_state_broadcaster_node)
-    ld.add_action(range_sensor_broadcaster_left_node)
-    ld.add_action(range_sensor_broadcaster_front_node)
-    ld.add_action(range_sensor_broadcaster_right_node)
+    ld.add_action(diffbot_base_controller_spawner)
+    ld.add_action(joint_state_broadcaster_spawner)
+    ld.add_action(range_sensor_broadcaster_left_spawner)
+    ld.add_action(range_sensor_broadcaster_front_spawner)
+    ld.add_action(range_sensor_broadcaster_right_spawner)
+    ld.add_action(sweeper_controller_spawner)
     ld.add_action(gpio_controller_spawner)
+    #ld.add_action(declare_slam_parameters)
     #ld.add_action(slam_toolbox_node)
-    #ld.add_action(rviz_node)
+    ld.add_action(rviz_node)
     ld.add_action(twist_mux_node)
     ld.add_action(joystick_node)
     ld.add_action(teleop_twist_joy_node)

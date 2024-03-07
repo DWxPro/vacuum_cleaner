@@ -4,8 +4,8 @@
 #include "pid.h"
 
 // debug
-#define debug(x) //Serial.print(x)
-#define debugln(x) //Serial.println(x)
+#define debug(x)    //Serial.print(x)
+#define debugln(x)  //Serial.println(x)
 
 // temp values
 int i_temp;
@@ -16,14 +16,15 @@ String S_temp;
 #define CMD_SETPOINT_LEFT             1   // [mm/s]
 #define CMD_SETPOINT_RIGHT            2   // [mm/s]
 #define CMD_SETPOINT_WHEELS           3   // [left,right]
-#define CMD_SETPOIN_VACUUM            4   // [0-255]
+#define CMD_SETPOINT_VACUUM           4   // [0-255]
 #define CMD_ENABLE_WHEELS             5   // [true/false]
-#define CMD_ENABLE_SWEEPER            6   // [true/false]
-#define CMD_ENABLE_VACUUM             7   // [true/false]
-#define CMD_GET_ENCODER_PULSES        8   // [-]
-#define CMD_RESET_ENCODER_PULSES      9   // [-]
-#define CMD_SET_SETTINGS              10  // [-]
-#define CMD_GET_SETTINGS              11  // [-]
+#define CMD_ENABLE_SWEEPER_LEFT       6   // [true/false]
+#define CMD_ENABLE_SWEEPER_RIGHT      7   // [true/false]
+#define CMD_ENABLE_VACUUM             8   // [true/false]
+#define CMD_GET_ENCODER_PULSES        9   // [-]
+#define CMD_RESET_ENCODER_PULSES      10  // [-]
+#define CMD_SET_SETTINGS              11  // [-]
+#define CMD_GET_SETTINGS              12  // [-]
 
 String message;
 int command;
@@ -128,7 +129,8 @@ void calculateEncoderTimeRight(){
 }
 
 // sweeper
-bool enable_sweeper = false;
+bool enable_sweeper_left = false;
+bool enable_sweeper_right = false;
 
 // vaccum
 bool enable_vaccum = false;
@@ -245,11 +247,11 @@ void loop(){
         break;
       }
 
-      case CMD_SETPOIN_VACUUM:{
+      case CMD_SETPOINT_VACUUM:{
         vaccum_speed = value.toInt();
         analogWrite(PIN_VACCUM_PWM, vaccum_speed);
           
-        debugln("(" + String(CMD_SETPOIN_VACCUM) + ")" + " vaccum speed: " + vaccum_speed);
+        debugln("(" + String(CMD_SETPOINT_VACUUM) + ")" + " vaccum speed: " + vaccum_speed);
         break;
       }
 
@@ -268,18 +270,29 @@ void loop(){
         break;
       }
 
-      case CMD_ENABLE_SWEEPER:{
-        enable_sweeper = (value == "true");
-        if (enable_sweeper){
+      case CMD_ENABLE_SWEEPER_LEFT:{
+        enable_sweeper_left = (value == "true");
+        if (enable_sweeper_left){
           digitalWrite(PIN_SWEEPER_LEFT_ENABLE, HIGH);
-          digitalWrite(PIN_SWEEPER_RIGHT_ENABLE, HIGH);
         }
         else{
           digitalWrite(PIN_SWEEPER_LEFT_ENABLE, LOW);
+        }
+        
+        debugln("(" + String(CMD_ENABLE_SWEEPER_LEFT) + ")" + " sweeper: " + (String((enable_sweeper_left) ? "true" : "false")));
+        break;
+      }
+
+      case CMD_ENABLE_SWEEPER_RIGHT:{
+        enable_sweeper_right = (value == "true");
+        if (enable_sweeper_right){
+          digitalWrite(PIN_SWEEPER_RIGHT_ENABLE, HIGH);
+        }
+        else{
           digitalWrite(PIN_SWEEPER_RIGHT_ENABLE, LOW);
         }
         
-        debugln("(" + String(CMD_ENABLE_SWEEPER) + ")" + " sweeper: " + (String((enable_sweeper) ? "true" : "false")));
+        debugln("(" + String(CMD_ENABLE_SWEEPER_RIGHT) + ")" + " sweeper: " + (String((enable_sweeper_right) ? "true" : "false")));
         break;
       }
 
@@ -292,7 +305,7 @@ void loop(){
           digitalWrite(PIN_VACCUM_ENABLE, LOW);
         }
         
-        debugln("(" + String(CMD_ENABLE_VACCUM) + ")" + " vaccum: " + (String((enable_vaccum) ? "true" : "false")));
+        debugln("(" + String(CMD_ENABLE_VACUUM) + ")" + " vaccum: " + (String((enable_vaccum) ? "true" : "false")));
         break;
       }
 

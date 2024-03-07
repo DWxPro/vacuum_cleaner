@@ -10,14 +10,15 @@
 #define CMD_SETPOINT_LEFT             1   // [mm/s]
 #define CMD_SETPOINT_RIGHT            2   // [mm/s]
 #define CMD_SETPOINT_WHEELS           3   // [left,right]
-#define CMD_SETPOIN_VACUUM            4   // [0-255]
+#define CMD_SETPOINT_VACUUM           4   // [0-255]
 #define CMD_ENABLE_WHEELS             5   // [true/false]
-#define CMD_ENABLE_SWEEPER            6   // [true/false]
-#define CMD_ENABLE_VACUUM             7   // [true/false]
-#define CMD_GET_ENCODER_PULSES        8   // [-]
-#define CMD_RESET_ENCODER_PULSES      9   // [-]
-#define CMD_SET_SETTINGS              10  // [-]
-#define CMD_GET_SETTINGS              11  // [-]
+#define CMD_ENABLE_SWEEPER_LEFT       6   // [true/false]
+#define CMD_ENABLE_SWEEPER_RIGHT      7   // [true/false]
+#define CMD_ENABLE_VACUUM             8   // [true/false]
+#define CMD_GET_ENCODER_PULSES        9   // [-]
+#define CMD_RESET_ENCODER_PULSES      10  // [-]
+#define CMD_SET_SETTINGS              11  // [-]
+#define CMD_GET_SETTINGS              12  // [-]
 
 // sensor commands
 #define CMD_GET_RANGE_VALUES          1   // [right,front,left]
@@ -57,8 +58,10 @@ public:
     void set_vacuum_speed(int speed);
 
     // sweeper
-    void enable_sweeper();
-    void disable_sweeper();
+    void enable_sweeper_left();
+    void disable_sweeper_left();
+    void enable_sweeper_right();
+    void disable_sweeper_right();
 
     // settings
     void get_settings();

@@ -1,12 +1,18 @@
 controller_manager:
   ros__parameters:
-    update_rate: 30  # Hz
+    update_rate: 30  # [Hz]
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
     diffbot_base_controller:
       type: diff_drive_controller/DiffDriveController
+
+#    vacuum_controller:
+#      type: forward_command_controller/ForwardCommandController
+
+    sweeper_controller:
+      type: velocity_controllers/JointGroupVelocityController
 
     range_sensor_broadcaster_left:
       type: range_sensor_broadcaster/RangeSensorBroadcaster
@@ -22,7 +28,7 @@ controller_manager:
 
 diffbot_base_controller:
   ros__parameters:
-    publish_rate: 50.0
+    publish_rate: 30.0
 
     base_frame_id: base_link
     left_wheel_names: ['left_wheel_joint']
@@ -46,6 +52,18 @@ diffbot_base_controller:
     #angular.z.min_acceleration: -1.0            # [rad/s²]
 
     use_stamped_vel: false
+
+#vacuum_controller:
+#  ros__parameters:
+#    joints:
+#      - vacuum_joint
+#    interface_name: PWM
+
+sweeper_controller:               # ros2 topic pub --once /sweeper_controller/commands std_msgs/msg/Float64MultiArray "{data:[40.0,40.0]}"
+  ros__parameters:
+    joints:
+      - sweeper_left_joint
+      - sweeper_right_joint
 
 range_sensor_broadcaster_left:
   ros__parameters:
@@ -77,6 +95,13 @@ range_sensor_broadcaster_right:
 gpio_controller:
   ros__parameters:
     inputs:
-     - user_interface/home_button
+      - user_interface/button_circle
+      - user_interface/button_start
+      - user_interface/button_home
+      - limit_switch_left/state
+      - limit_switch_right/state
     outputs:
-     - user_interface/home_button_LED
+      - user_interface/LED_circle
+      - user_interface/LED_start_green
+      - user_interface/LED_start_red
+      - user_interface/LED_home

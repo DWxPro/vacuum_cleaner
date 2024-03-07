@@ -1,7 +1,12 @@
 #include "include/diffbot_system.hpp"
 
-#define DEBUG_RANGE(x,...)    //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
-#define DEBUG_WHEELS(x,...)   //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
+#define DEBUG(x,...)                  //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
+#define DEBUG_WHEELS(x,...)           //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
+#define DEBUG_VACUUM(x,...)           //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
+#define DEBUG_SWEEPER(x,...)          RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
+#define DEBUG_RANGE_SENSORS(x,...)    //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
+#define DEBUG_LIMIT_SWITCHS(x,...)    //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
+#define DEBUG_USER_INTERFACE(x,...)   //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
 
 namespace vacuum_cleaner
 {
@@ -15,32 +20,46 @@ hardware_interface::CallbackReturn VacuumCleanerHardware::on_init(const hardware
   }
 
   // communication
-  communication_.motors_port = info_.hardware_parameters["motors_port"];
-  communication_.motors_baud_rate = std::stoi(info_.hardware_parameters["motors_baud_rate"]);
-  communication_.motors_timeout_ms = std::stoi(info_.hardware_parameters["motors_timeout_ms"]);
+  communication_.motors_port = "/dev/serial/by-id/usb-Arduino_RaspberryPi_Pico_644861E6228B85D3-if00";
+  communication_.motors_baud_rate = 115200;
+  communication_.motors_timeout_ms = 1000;
 
-  communication_.sensors_port = info_.hardware_parameters["sensors_port"];
-  communication_.sensors_baud_rate = std::stoi(info_.hardware_parameters["sensors_baud_rate"]);
-  communication_.sensors_timeout_ms = std::stoi(info_.hardware_parameters["sensors_timeout_ms"]);
+  communication_.sensors_port = "/dev/serial/by-id/usb-Arduino_RaspberryPi_Pico_304C61E62BB46493-if00";
+  communication_.sensors_baud_rate = 115200;
+  communication_.sensors_timeout_ms = 1000;
 
   // left wheel
-  wheel_left_.name = info_.hardware_parameters["left_wheel_name"];
-  wheel_left_.rads_per_count = ( 2 * M_PI ) / std::stoi(info_.hardware_parameters["left_encoder_resolution"]);
-  wheel_left_.radius = std::stoi(info_.hardware_parameters["left_wheel_radius"]);
+  wheel_left_.name = "left_wheel_joint";
+  wheel_left_.resolution = 575;
+  wheel_left_.rads_per_count = ( 2 * M_PI ) / wheel_left_.resolution;
+  wheel_left_.radius = 32;
 
   // right wheel
-  wheel_right_.name = info_.hardware_parameters["right_wheel_name"];
-  wheel_right_.rads_per_count = ( 2 * M_PI ) / std::stoi(info_.hardware_parameters["right_encoder_resolution"]);
-  wheel_right_.radius = std::stoi(info_.hardware_parameters["right_wheel_radius"]);
+  wheel_right_.name = "right_wheel_joint";
+  wheel_right_.resolution = 575;
+  wheel_right_.rads_per_count = ( 2 * M_PI ) / wheel_right_.resolution;
+  wheel_right_.radius = 32;
   
+  // vacuum
+  vacuum_.name = "vacuum_joint";
+
+  // sweeper
+  sweeper_left_.name = "sweeper_left_joint";
+  sweeper_left_.max_velocity = 40;
+  sweeper_right_.name = "sweeper_right_joint";
+  sweeper_right_.max_velocity = 40;
+
   // range sensors
-  range_sensor_left_.name = info_.hardware_parameters["range_sensor_left_name"];
-  range_sensor_front_.name = info_.hardware_parameters["range_sensor_front_name"];
-  range_sensor_right_.name = info_.hardware_parameters["range_sensor_right_name"];
+  range_sensor_left_.name = "range_sensor_left";
+  range_sensor_front_.name = "range_sensor_front";
+  range_sensor_right_.name = "range_sensor_right";
 
   // user interface
-  home_button_.name = info_.hardware_parameters["home_button_name"];
-  home_button_LED_.name = info_.hardware_parameters["home_button_LED_name"];
+  user_interface_.name = "user_interface";
+
+  // limit switches
+  limit_switch_left_.name = "limit_switch_left";
+  limit_switch_right_.name = "limit_switch_right";
 
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -51,15 +70,25 @@ std::vector<hardware_interface::StateInterface> VacuumCleanerHardware::export_st
   std::vector<hardware_interface::StateInterface> state_interfaces;
 
   state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_left_.name, "position", &wheel_left_.position));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_left_.name, "velocity", &wheel_left_.velocity));
   state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_right_.name, "position", &wheel_right_.position));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_left_.name, "velocity", &wheel_left_.velocity));
   state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_right_.name, "velocity", &wheel_right_.velocity));
-  
+
+  state_interfaces.emplace_back(hardware_interface::StateInterface(sweeper_left_.name, "position", &sweeper_left_.position));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(sweeper_right_.name, "position", &sweeper_right_.position));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(sweeper_left_.name, "velocity", &sweeper_left_.velocity));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(sweeper_right_.name, "velocity", &sweeper_right_.velocity));
+
   state_interfaces.emplace_back(hardware_interface::StateInterface(range_sensor_left_.name, "range", &range_sensor_left_.range));
   state_interfaces.emplace_back(hardware_interface::StateInterface(range_sensor_front_.name, "range", &range_sensor_front_.range));
   state_interfaces.emplace_back(hardware_interface::StateInterface(range_sensor_right_.name, "range", &range_sensor_right_.range));
 
-  state_interfaces.emplace_back(hardware_interface::StateInterface("user_interface", "home_button", &home_button_.state));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(user_interface_.name, "button_circle", &user_interface_.button_circle));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(user_interface_.name, "button_start", &user_interface_.button_start));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(user_interface_.name, "button_home", &user_interface_.button_home));
+
+  state_interfaces.emplace_back(hardware_interface::StateInterface(limit_switch_left_.name, "state", &limit_switch_left_.state));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(limit_switch_right_.name, "state", &limit_switch_right_.state));
 
   return state_interfaces;
 }
@@ -72,8 +101,16 @@ std::vector<hardware_interface::CommandInterface> VacuumCleanerHardware::export_
   command_interfaces.emplace_back(hardware_interface::CommandInterface(wheel_left_.name, "velocity", &wheel_left_.command));
   command_interfaces.emplace_back(hardware_interface::CommandInterface(wheel_right_.name, "velocity", &wheel_right_.command));
 
-  command_interfaces.emplace_back(hardware_interface::CommandInterface("user_interface", "home_button_LED", &home_button_LED_.state));
+//  command_interfaces.emplace_back(hardware_interface::CommandInterface(vacuum_.name, "velocity", &vacuum_.command))//;
 
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(sweeper_left_.name, "velocity", &sweeper_left_.command));
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(sweeper_right_.name, "velocity", &sweeper_right_.command));
+
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(user_interface_.name, "LED_circle", &user_interface_.LED_circle));
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(user_interface_.name, "LED_start_green", &user_interface_.LED_start_green));
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(user_interface_.name, "LED_start_red", &user_interface_.LED_start_red));
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(user_interface_.name, "LED_home", &user_interface_.LED_home));
+  
   return command_interfaces;
 }
 
@@ -88,13 +125,8 @@ hardware_interface::CallbackReturn VacuumCleanerHardware::on_configure(const rcl
   motors_.connect(communication_.motors_port, communication_.motors_baud_rate, communication_.motors_timeout_ms);
   sensors_.connect(communication_.sensors_port, communication_.sensors_baud_rate, communication_.sensors_timeout_ms);
 
-  bool motors_connection_status = motors_.connected();
-  bool sensors_connection_status = sensors_.connected();
-
-  // print connection status
-  RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"),"Motors Connection Status: %s", motors_connection_status ? "true" : "false");
-  RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"),"Sensors Connection Status: %s", sensors_connection_status ? "true" : "false");
-  
+  RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"),"Motors Connection Status: %s", motors_.connected() ? "true" : "false");
+  RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"),"Sensors Connection Status: %s", sensors_.connected() ? "true" : "false");
   RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "Successfully configured!");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -115,7 +147,6 @@ hardware_interface::CallbackReturn VacuumCleanerHardware::on_activate(const rclc
 {
   RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "Activating ...please wait...");
   
-  // check Arduino connection before startup
   if (!motors_.connected() || !sensors_.connected())
   {
     RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "communication error");
@@ -143,13 +174,14 @@ hardware_interface::CallbackReturn VacuumCleanerHardware::on_deactivate(const rc
 }
 
 hardware_interface::return_type VacuumCleanerHardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & period)
-{
-  // read encoder values
-  if (!motors_.connected() || !motors_.connected())
+{ 
+  if (!motors_.connected() || !sensors_.connected())
   {
     RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "communication error");
     return hardware_interface::return_type::ERROR;
   }
+
+  double delta_seconds = period.seconds();
 
   // motors
   motors_.read_encoder_values(wheel_left_.counts, wheel_right_.counts);
@@ -157,36 +189,69 @@ hardware_interface::return_type VacuumCleanerHardware::read(const rclcpp::Time &
   wheel_left_.position = wheel_left_.counts * wheel_left_.rads_per_count;
   wheel_left_.position = wheel_left_.counts * wheel_left_.rads_per_count;
 
-  double delta_seconds = period.seconds();
   wheel_left_.velocity = ( wheel_left_.position - wheel_left_.previous_positon ) / delta_seconds;   
   wheel_right_.velocity = ( wheel_right_.position - wheel_right_.previous_positon ) / delta_seconds;   
   
   wheel_left_.previous_positon = wheel_left_.position;
   wheel_right_.previous_positon = wheel_right_.position;
 
+  sweeper_left_.position += sweeper_left_.velocity * delta_seconds;
+  sweeper_right_.position += sweeper_right_.velocity * delta_seconds;
+
   // sensors
   sensors_.read_range_values(range_sensor_left_.range, range_sensor_front_.range, range_sensor_right_.range);
-  
-  DEBUG_RANGE("range left: %f range front: %f range right: %f", range_sensor_left_.range, range_sensor_front_.range, range_sensor_right_.range);
+
+//  sensors_.read_button_states(user_interface_.button_circle, user_interface_.button_start, user_interface_.button_home);
+
+//  sensors_.read_limit_switches(limit_switch_left_.state, limit_switch_right_.state);
+
+  DEBUG_RANGE_SENSORS("range left: %f range front: %f range right: %f", range_sensor_left_.range, range_sensor_front_.range, range_sensor_right_.range);
+  DEBUG_USER_INTERFACE("button circle: %f button start: %f button home: %f", user_interface_.button_circle, user_interface_.button_start, user_interface_.button_home);
+  DEBUG_LIMIT_SWITCHS("limit switch left: %f limit siwtch right: %f" , limit_switch_left.state, limit_switch_right.state);
   return hardware_interface::return_type::OK;
 }
 
 hardware_interface::return_type VacuumCleanerHardware::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
-  // set motor values
-  if (!motors_.connected() || !motors_.connected())
-  {
+  if (!motors_.connected() || !sensors_.connected()){
     return hardware_interface::return_type::ERROR;
     RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "communication error");
   }
-  
+
+  //motors
   motors_.set_wheel_speeds(wheel_left_.command * wheel_left_.radius, wheel_right_.command * wheel_right_.radius);
+
+//  motors_.set_vacuum_speed(vacuum_.command);  
+//  if (vacuum_.previous_command == 0 && vacuum_.command > 0) {motors_.enable_vacuum();}
+//  else if (vacuum_.command == 0) {motors_.disable_vacuum();}
+  
+  if (sweeper_left_.command == sweeper_left_.max_velocity){
+    motors_.enable_sweeper_left();
+    sweeper_left_.velocity = sweeper_left_.max_velocity;
+  }
+  else{
+    motors_.disable_sweeper_left();
+    sweeper_left_.velocity = 0;
+  }
+
+  if (sweeper_right_.command == sweeper_right_.max_velocity){
+    motors_.enable_sweeper_right();
+    sweeper_right_.velocity = sweeper_right_.max_velocity;
+  }
+  else{
+    motors_.disable_sweeper_right();
+    sweeper_right_.velocity = 0;
+  }
+
+//  // sensors
+//  sensors_.set_LEDs(user_interface_.LED_circle, user_interface_.LED_start_green, user_interface_.LED_start_red, user_interface_.button_home);
 
   DEBUG_WHEELS("command left: %f comand right: %f", wheel_left_.command, wheel_right_.command);
   DEBUG_WHEELS("speed left: %f speed right: %f", wheel_left_.command * wheel_left_.radius, wheel_right_.command * wheel_right_.radius);
+  DEBUG_VACUUM("command: %f ", vacuum_.command);
+  DEBUG_SWEEPER("sweeper left: %f sweeper right: %f", sweeper_left_.command, sweeper_right_.command);
   return hardware_interface::return_type::OK;
 }
-
 }  // namespace vacuum_cleaner
 
 #include "pluginlib/class_list_macros.hpp"
