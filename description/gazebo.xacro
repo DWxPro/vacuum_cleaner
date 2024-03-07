@@ -7,11 +7,11 @@
             <material>Gazebo/White</material>
         </gazebo>
 
-        <gazebo reference="left_wheel">
+        <gazebo reference="wheel_left">
             <material>Gazebo/Blue</material>
         </gazebo>
 
-        <gazebo reference="right_wheel">
+        <gazebo reference="wheel_right">
             <material>Gazebo/Blue</material>
         </gazebo>
 

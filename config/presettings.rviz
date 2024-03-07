@@ -113,7 +113,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        left_wheel:
+        wheel_left:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -128,7 +128,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        right_wheel:
+        wheel_right:
           Alpha: 1
           Show Axes: false
           Show Trail: false

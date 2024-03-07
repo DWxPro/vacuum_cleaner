@@ -3,7 +3,7 @@
 #define DEBUG(x,...)                  //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
 #define DEBUG_WHEELS(x,...)           //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
 #define DEBUG_VACUUM(x,...)           //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
-#define DEBUG_SWEEPER(x,...)          RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
+#define DEBUG_SWEEPER(x,...)          //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
 #define DEBUG_RANGE_SENSORS(x,...)    //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
 #define DEBUG_LIMIT_SWITCHS(x,...)    //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
 #define DEBUG_USER_INTERFACE(x,...)   //RCLCPP_INFO(rclcpp::get_logger("##### DEBUG #####"), x, ##__VA_ARGS__)
@@ -29,13 +29,13 @@ hardware_interface::CallbackReturn VacuumCleanerHardware::on_init(const hardware
   communication_.sensors_timeout_ms = 1000;
 
   // left wheel
-  wheel_left_.name = "left_wheel_joint";
+  wheel_left_.name = "wheel_left_joint";
   wheel_left_.resolution = 575;
   wheel_left_.rads_per_count = ( 2 * M_PI ) / wheel_left_.resolution;
   wheel_left_.radius = 32;
 
   // right wheel
-  wheel_right_.name = "right_wheel_joint";
+  wheel_right_.name = "wheel_right_joint";
   wheel_right_.resolution = 575;
   wheel_right_.rads_per_count = ( 2 * M_PI ) / wheel_right_.resolution;
   wheel_right_.radius = 32;
