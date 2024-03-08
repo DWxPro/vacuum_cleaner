@@ -65,7 +65,7 @@ target_compile_options(vacuum_cleaner PUBLIC -ljsoncpp)
 # Exports a plugin description file for the hardware_interface.
 pluginlib_export_plugin_description_file(hardware_interface hardware.xml)
 # Export a plugin description file for thecontrollers
-pluginlib_export_plugin_description_file(controller_interface controller.xml)
+pluginlib_export_plugin_description_file(controller_interface controllers.xml)
 
 # Installs necessary fildes to the target directorys
 install(
