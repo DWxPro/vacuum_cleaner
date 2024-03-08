@@ -8,11 +8,19 @@
         </gazebo>
 
         <gazebo reference="wheel_left">
-            <material>Gazebo/Blue</material>
+            <material>Gazebo/Black</material>
         </gazebo>
 
         <gazebo reference="wheel_right">
-            <material>Gazebo/Blue</material>
+            <material>Gazebo/Black</material>
+        </gazebo>
+
+        <gazebo reference="sweeper_left">
+            <material>Gazebo/Black</material>
+        </gazebo>
+
+        <gazebo reference="sweeper_right">
+            <material>Gazebo/Black</material>
         </gazebo>
 
         <gazebo reference="caster_wheel_plate">
@@ -20,13 +28,21 @@
         </gazebo>
 
         <gazebo reference="caster_wheel">
-            <material>Gazebo/Black</material>
+            <material>Gazebo/Blue</material>
             <mu1 value="0.001"/>
             <mu2 value="0.001"/>
         </gazebo>
 
+        <gazebo reference="frame_bracket">
+            <material>Gazebo/Blue</material>
+        </gazebo>
+
         <gazebo reference="lidar_bracket">
             <material>Gazebo/White</material>
+        </gazebo>
+
+        <gazebo reference="raspberry_pi">
+            <material>Gazebo/Black</material>
         </gazebo>
 
         <!-- RANGE SENSORS -->

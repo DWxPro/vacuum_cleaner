@@ -8,9 +8,10 @@
     <xacro:include filename="inertial_macros.xacro"/>
     <xacro:include filename="materials.xacro"/>
     <xacro:include filename="robot_core.xacro"/>
-    <xacro:include filename="sweeper.xacro"/>   
+    <xacro:include filename="sweeper.xacro"/>
     <xacro:include filename="range_sensors.xacro"/>
     <xacro:include filename="lidar.xacro"/>
+    <xacro:include filename="raspberry_pi.xacro"/>
     <xacro:include filename="ros2_control.xacro"/>
     <xacro:include filename="gazebo.xacro"/>
 
