@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- RASPBERRY PI -->
+    <xacro:property name="raspberry_pi_length" value="0.088"/>
+    <xacro:property name="raspberry_pi_width" value="0.055"/>
+    <xacro:property name="raspberry_pi_height" value="0.025"/>
+    <xacro:property name="raspberry_pi_mass" value="0.140"/>
+    <xacro:property name="raspberry_pi_color" value="black"/>
+
+    <xacro:property name="raspberry_pi_offset_x" value="0.11 "/>
+
+    <joint name="raspberry_pi_joint" type="fixed">
+        <parent link="chassis"/>
+        <child link="raspberry_pi"/>
+        <origin xyz="${-raspberry_pi_offset_x} 0 ${raspberry_pi_height/2 + chassis_thickness/2}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="raspberry_pi">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 ${pi/2}"/>
+            <geometry>
+                <box size="${raspberry_pi_length} ${raspberry_pi_width} ${raspberry_pi_height}"/>
+            </geometry>
+            <material name="${raspberry_pi_color}"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 ${pi/2}"/>
+            <geometry>
+                <box size="${raspberry_pi_length} ${raspberry_pi_width} ${raspberry_pi_height}"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_box mass="${raspberry_pi_mass}" x="${raspberry_pi_length}" y="${raspberry_pi_width}" z="${raspberry_pi_height}">
+            <origin xyz="0 0 0" rpy="0 0 ${pi/2}"/>
+        </xacro:inertial_box>
+    </link>
+
+
+</robot>
