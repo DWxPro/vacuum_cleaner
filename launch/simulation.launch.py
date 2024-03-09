@@ -28,7 +28,7 @@ def generate_launch_description():
     urdf_name = 'robot.urdf.xacro'
     urdf_mappings = {'sim_mode': "true"}
     world_file_name = 'my_world.world'
-    slam_mapping = False
+    slam_mapping = True
     slam_mapping_file_name = 'slam_mapping.yaml'
     slam_localization_file_name = 'slam_localization.yaml'
     rviz_file_name = 'presettings.rviz'
@@ -155,17 +155,17 @@ def generate_launch_description():
     ld = LaunchDescription()
     
     ld.add_action(robot_state_publisher_node)
-    #ld.add_action(declare_gazebo_world)
+    ld.add_action(declare_gazebo_world)
     ld.add_action(gazebo_node)
     ld.add_action(spawn_entity_node)
     ld.add_action(diffbot_base_controller_spawner)
     ld.add_action(joint_state_broadcaster_spawner)
     ld.add_action(sweeper_controller_spawner)
-    #ld.add_action(declare_slam_parameters)
-    #ld.add_action(slam_toolbox_node)
+    ld.add_action(declare_slam_parameters)
+    ld.add_action(slam_toolbox_node)
     ld.add_action(rviz_node)
-    #ld.add_action(twist_mux_node)
-    #ld.add_action(joystick_node)
-    #ld.add_action(teleop_twist_joy_node)
+    ld.add_action(twist_mux_node)
+    ld.add_action(joystick_node)
+    ld.add_action(teleop_twist_joy_node)
 
     return ld

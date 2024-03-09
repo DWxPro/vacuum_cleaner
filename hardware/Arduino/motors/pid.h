@@ -1,5 +1,3 @@
-// https://gist.github.com/bradley219/5373998?permalink_comment_id=4261796
-
 #ifndef _PID_H_
 #define _PID_H_
 
@@ -18,17 +16,17 @@ class PID
         double calculate( double setpoint, double pv );
         
         // changes PID parameters
-        void setPID(double Kp, double Kd, double Ki);
+        void setPID( double Kp, double Kd, double Ki );
 
     private:
-        double _dt;
-        double _max;
-        double _min;
-        double _Kp;
-        double _Kd;
-        double _Ki;
-        double _pre_error;
-        double _integral;
+        double dt_;
+        double max_;
+        double min_;
+        double Kp_;
+        double Kd_;
+        double Ki_;
+        double previous_error_;
+        double integral_;
 };
 
 #endif

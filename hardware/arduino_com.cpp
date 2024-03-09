@@ -79,24 +79,45 @@ void MotorsCom::reset_encoder_values()
   serial_connection_.Write(ss.str());
 }
 
-void MotorsCom::enable_wheels()
+void MotorsCom::enable_wheel_left()
 {
   std::stringstream ss;
-  ss << CMD_ENABLE_WHEELS << " " << "true" << "\n";
+  ss << CMD_ENABLE_WHEEL_LEFT << " " << "true" << "\n";
   serial_connection_.Write(ss.str());
 }
 
-void MotorsCom::disable_wheels()
+void MotorsCom::enable_wheel_right()
 {
   std::stringstream ss;
-  ss << CMD_ENABLE_WHEELS << " " << "false" << "\n";
+  ss << CMD_ENABLE_WHEEL_RIGHT << " " << "true" << "\n";
   serial_connection_.Write(ss.str());
 }
 
-void MotorsCom::set_wheel_speeds(int speed_left, int speed_right)
+void MotorsCom::disable_wheel_left()
 {
   std::stringstream ss;
-  ss << CMD_SETPOINT_WHEELS << " " << (speed_left) << " " << (speed_right) << "\n";
+  ss << CMD_ENABLE_WHEEL_LEFT << " " << "false" << "\n";
+  serial_connection_.Write(ss.str());
+}
+
+void MotorsCom::disable_wheel_right()
+{
+  std::stringstream ss;
+  ss << CMD_ENABLE_WHEEL_RIGHT << " " << "false" << "\n";
+  serial_connection_.Write(ss.str());
+}
+
+void MotorsCom::set_wheel_speed_left(int speed_left)
+{
+  std::stringstream ss;
+  ss << CMD_SETPOINT_LEFT << " " << (speed_left) << "\n";
+  serial_connection_.Write(ss.str());
+}
+
+void MotorsCom::set_wheel_speed_right(int speed_right)
+{
+  std::stringstream ss;
+  ss << CMD_SETPOINT_RIGHT << " " << (speed_right) << "\n";
   serial_connection_.Write(ss.str());
 }
 
@@ -188,12 +209,12 @@ void SensorsCom::read_range_values(double &range_left, double &range_front, doub
 //{
 //
 //}
-//
+
 //void SensorsCom::set_LEDs(bool circle, bool start_green, bool start_red, bool home)
 //{
 //
 //}
-//
+
 //void SensorsCom::read_limit_switches(bool &limit_switch_left, bool &limit_switch_right)
 //{
 //

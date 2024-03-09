@@ -165,7 +165,7 @@ def generate_launch_description():
     ld.add_action(gpio_controller_spawner)
     #ld.add_action(declare_slam_parameters)
     #ld.add_action(slam_toolbox_node)
-    ld.add_action(rviz_node)
+    #ld.add_action(rviz_node)
     ld.add_action(twist_mux_node)
     ld.add_action(joystick_node)
     ld.add_action(teleop_twist_joy_node)

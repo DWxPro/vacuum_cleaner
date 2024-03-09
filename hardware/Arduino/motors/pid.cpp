@@ -3,56 +3,55 @@
 
 #include "pid.h"
 
-PID::PID( double dt, double max, double min, double Kp, double Kd, double Ki ) :
-    _dt(dt),
-    _max(max),
-    _min(min),
-    _Kp(Kp),
-    _Kd(Kd),
-    _Ki(Ki),
-    _pre_error(0),
-    _integral(0)
+PID::PID( double dt, double max, double min, double Kp, double Ki, double Kd ) :
+    dt_(dt),
+    max_(max),
+    min_(min),
+    Kp_(Kp),
+    Kd_(Kd),
+    Ki_(Ki),
+    previous_error_(0),
+    integral_(0)
 {
 }
 
-double PID::calculate( double setpoint, double pv )
+double PID::calculate( double setpoint, double process_value )
 {
-    
+
     // Calculate error
-    double error = setpoint - pv;
+    double error = setpoint - process_value; 
 
     // Proportional term
-    double Pout = _Kp * error;
+    double Pout = Kp_ * error;
 
     // Integral term
-    _integral += error * _dt;
-    double Iout = _Ki * _integral;
+    integral_ += error * dt_;
+    double Iout = Ki_ * integral_;
 
     // Derivative term
-    double derivative = (error - _pre_error) / _dt;
-    double Dout = _Kd * derivative;
+    double derivative = (error - previous_error_) / dt_;
+    double Dout = Kd_ * derivative;
 
     // Calculate total output
     double output = Pout + Iout + Dout;
 
     // Restrict to max/min
-    if( output > _max )
-        output = _max;
-    else if( output < _min )
-        output = _min;
+    if( output > max_ )
+        output = max_;
+    else if( output < min_ )
+        output = min_;
 
     // Save error to previous error
-    _pre_error = error;
+    previous_error_ = error;
 
     return output;
 }
 
 void PID::setPID(double Kp, double Kd, double Ki)
 {
-    _Kp = Kp;
-    _Kd = Kd;
-    _Ki = Ki;
+    Kp_ = Kp;
+    Kd_ = Kd;
+    Ki_ = Ki;
 }
-
 
 #endif

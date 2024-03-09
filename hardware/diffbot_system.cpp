@@ -43,9 +43,11 @@ hardware_interface::CallbackReturn VacuumCleanerHardware::on_init(const hardware
   // vacuum
   vacuum_.name = "vacuum_joint";
 
-  // sweeper
+  // sweeper left
   sweeper_left_.name = "sweeper_left_joint";
   sweeper_left_.max_velocity = 40;
+
+  // sweeper right
   sweeper_right_.name = "sweeper_right_joint";
   sweeper_right_.max_velocity = 40;
 
@@ -154,8 +156,8 @@ hardware_interface::CallbackReturn VacuumCleanerHardware::on_activate(const rclc
   }
   
   // enable wheel motors
-  motors_.set_wheel_speeds(0, 0);
-  motors_.enable_wheels();
+  motors_.set_wheel_speed_left(0);
+  motors_.set_wheel_speed_right(0);
 
   RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "Successfully activated!");
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -166,8 +168,8 @@ hardware_interface::CallbackReturn VacuumCleanerHardware::on_deactivate(const rc
   RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "Deactivating ...please wait...");
 
   // disable wheel motors
-  motors_.set_wheel_speeds(0, 0);
-  motors_.disable_wheels();
+  motors_.set_wheel_speed_left(0);
+  motors_.set_wheel_speed_right(0);
 
   RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "Successfully deactivated!");
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -187,7 +189,7 @@ hardware_interface::return_type VacuumCleanerHardware::read(const rclcpp::Time &
   motors_.read_encoder_values(wheel_left_.counts, wheel_right_.counts);
 
   wheel_left_.position = wheel_left_.counts * wheel_left_.rads_per_count;
-  wheel_left_.position = wheel_left_.counts * wheel_left_.rads_per_count;
+  wheel_right_.position = wheel_right_.counts * wheel_right_.rads_per_count;
 
   wheel_left_.velocity = ( wheel_left_.position - wheel_left_.previous_positon ) / delta_seconds;   
   wheel_right_.velocity = ( wheel_right_.position - wheel_right_.previous_positon ) / delta_seconds;   
@@ -205,6 +207,7 @@ hardware_interface::return_type VacuumCleanerHardware::read(const rclcpp::Time &
 
 //  sensors_.read_limit_switches(limit_switch_left_.state, limit_switch_right_.state);
 
+  DEBUG_WHEELS("encoder left: %f encoder right: %f", wheel_left_.counts, wheel_right_.counts);
   DEBUG_RANGE_SENSORS("range left: %f range front: %f range right: %f", range_sensor_left_.range, range_sensor_front_.range, range_sensor_right_.range);
   DEBUG_USER_INTERFACE("button circle: %f button start: %f button home: %f", user_interface_.button_circle, user_interface_.button_start, user_interface_.button_home);
   DEBUG_LIMIT_SWITCHS("limit switch left: %f limit siwtch right: %f" , limit_switch_left.state, limit_switch_right.state);
@@ -218,13 +221,32 @@ hardware_interface::return_type VacuumCleanerHardware::write(const rclcpp::Time 
     RCLCPP_INFO(rclcpp::get_logger("vacuumCleanerHardware"), "communication error");
   }
 
-  //motors
-  motors_.set_wheel_speeds(wheel_left_.command * wheel_left_.radius, wheel_right_.command * wheel_right_.radius);
+  // left wheel
+  if(wheel_left_.command != 0){
+    motors_.enable_wheel_left();
+    wheel_left_.setpoint = wheel_left_.command * wheel_left_.radius;
+    motors_.set_wheel_speed_left(wheel_left_.setpoint);
+  }
+  else{
+    motors_.disable_wheel_left();
+  }
 
+  // right wheel
+  if(wheel_right_.command != 0){
+    motors_.enable_wheel_right();
+    wheel_right_.setpoint = wheel_right_.command * wheel_right_.radius;
+    motors_.set_wheel_speed_right(wheel_right_.setpoint);
+  }
+  else{
+    motors_.disable_wheel_left();
+  }
+
+  // vacuum
 //  motors_.set_vacuum_speed(vacuum_.command);  
 //  if (vacuum_.previous_command == 0 && vacuum_.command > 0) {motors_.enable_vacuum();}
 //  else if (vacuum_.command == 0) {motors_.disable_vacuum();}
   
+  // sweeper left
   if (sweeper_left_.command == sweeper_left_.max_velocity){
     motors_.enable_sweeper_left();
     sweeper_left_.velocity = sweeper_left_.max_velocity;
@@ -234,6 +256,7 @@ hardware_interface::return_type VacuumCleanerHardware::write(const rclcpp::Time 
     sweeper_left_.velocity = 0;
   }
 
+  // sweeper right
   if (sweeper_right_.command == sweeper_right_.max_velocity){
     motors_.enable_sweeper_right();
     sweeper_right_.velocity = sweeper_right_.max_velocity;
@@ -247,7 +270,7 @@ hardware_interface::return_type VacuumCleanerHardware::write(const rclcpp::Time 
 //  sensors_.set_LEDs(user_interface_.LED_circle, user_interface_.LED_start_green, user_interface_.LED_start_red, user_interface_.button_home);
 
   DEBUG_WHEELS("command left: %f comand right: %f", wheel_left_.command, wheel_right_.command);
-  DEBUG_WHEELS("speed left: %f speed right: %f", wheel_left_.command * wheel_left_.radius, wheel_right_.command * wheel_right_.radius);
+  DEBUG_WHEELS("setpoint left: %f setpoint right: %f", wheel_left_.setpoint, wheel_right_.setpoint);
   DEBUG_VACUUM("command: %f ", vacuum_.command);
   DEBUG_SWEEPER("sweeper left: %f sweeper right: %f", sweeper_left_.command, sweeper_right_.command);
   return hardware_interface::return_type::OK;

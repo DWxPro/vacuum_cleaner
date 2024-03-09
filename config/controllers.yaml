@@ -40,8 +40,8 @@ diffbot_base_controller:
 
     linear.x.has_velocity_limits: true
     #linear.x.has_acceleration_limits: true
-    linear.x.max_velocity: 0.10                 # [m/s] - v[m/s] = cmd_val[rad/s] * wheel_radius
-    linear.x.min_velocity: -0.10                # [m/s]
+    linear.x.max_velocity: 0.200                # [m/s] - v[m/s] = cmd_val[rad/s] * wheel_radius
+    linear.x.min_velocity: -0.200               # [m/s]
     #linear.x.max_acceleration: 1.0              # [m/s²]
 
     angular.z.has_velocity_limits: true

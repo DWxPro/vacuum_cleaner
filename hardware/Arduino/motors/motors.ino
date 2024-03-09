@@ -15,9 +15,9 @@ String S_temp;
 // commands
 #define CMD_SETPOINT_LEFT             1   // [mm/s]
 #define CMD_SETPOINT_RIGHT            2   // [mm/s]
-#define CMD_SETPOINT_WHEELS           3   // [left,right]
-#define CMD_SETPOINT_VACUUM           4   // [0-255]
-#define CMD_ENABLE_WHEELS             5   // [true/false]
+#define CMD_SETPOINT_VACUUM           3   // [0-255]
+#define CMD_ENABLE_WHEEL_LEFT         4   // [true/false]
+#define CMD_ENABLE_WHEEL_RIGHT        5   // [true/false]
 #define CMD_ENABLE_SWEEPER_LEFT       6   // [true/false]
 #define CMD_ENABLE_SWEEPER_RIGHT      7   // [true/false]
 #define CMD_ENABLE_VACUUM             8   // [true/false]
@@ -54,15 +54,16 @@ DynamicJsonDocument settings_JSON(jsonCapacity);
 DynamicJsonDocument new_settings_JSON(jsonCapacity);
 
 // control parameters
-double kp_left = 0.8;               // [-]
-double ki_left = 0.03;               // [ms]
-double kd_left = 0.2;               // [mm/ms²]
+double kp_left = 0.5;               // [-]
+double ki_left = 0.01;              // [ms]
+double kd_left = 0.0;               // [mm/ms²]
 
-double kp_right = 0.8;              // [-] 
-double ki_right = 0.03;              // [ms]
-double kd_right = 0.2;              // [mm/ms²]
+double kp_right = 0.5;              // [-] 
+double ki_right = 0.01;             // [ms]
+double kd_right = 0.0;              // [mm/ms²]
 
-bool enable_controller = false;
+bool enable_controller_left = false;
+bool enable_controller_right = false;
 
 double setpoint_left = 0.0;         // [mm/s]
 double setpoint_right = 0.0;        // [mm/s]
@@ -77,12 +78,15 @@ double min_PWM = 0;                 // [%]
 #define CYCLE_TIME 30               // [ms]
 #define START_SERIAL_DELAY 4        // [ms]
 
-unsigned long time_last_cycle = 0;  // [ms]
-unsigned long time_now = 0;         // [ms]
-int time_delta = 0;                 // [ms]
+unsigned long time_last_cycle_left = 0;   // [ms]
+unsigned long time_last_cycle_right = 0;  // [ms]
+unsigned long time_now_left = 0;          // [ms]
+unsigned long time_now_right = 0;         // [ms]
+int time_delta_left = 0;                  // [ms]
+int time_delta_right = 0;                 // [ms]
 
-PID PID_left = PID(CYCLE_TIME, max_PWM, min_PWM, kp_left, kd_left, ki_left);
-PID PID_right = PID(CYCLE_TIME, max_PWM, min_PWM, kp_right, kd_right, ki_right);
+PID PID_left = PID(CYCLE_TIME, max_PWM, min_PWM, kp_left, ki_left, kd_left);
+PID PID_right = PID(CYCLE_TIME, max_PWM, min_PWM, kp_right, ki_right, kd_right);
 
 // encoder
 double encoder_resolution = 575;  // [-]
@@ -94,7 +98,7 @@ double lengthPerPulse = PI * wheel_diameter  / encoder_resolution;
 
 unsigned long encoder_time_now_left = 0;          // [µm]
 unsigned long encoder_time_last_left = 0;         // [µm]
-unsigned long encoder_time_delta_left = 3000000;  // [µm] default value simulates very slow start motion.
+unsigned long encoder_time_delta_left = 3000000;  // [µm] default value simulates very slow start motion
 long encoder_pulses_left = 0;                     // [-]
 
 unsigned long encoder_time_now_right = 0;         // [µm]
@@ -164,13 +168,42 @@ void setup() {
 
 void loop(){
 
-  // run controller
-  if (enable_controller){
+  // run left controller
+  if (enable_controller_left){
 
-    time_now = millis();
-    time_delta = time_now - time_last_cycle;
+    time_now_left = millis();
+    time_delta_left = time_now_left - time_last_cycle_left;
 
-    if (time_delta >= CYCLE_TIME){
+    if (time_delta_left >= CYCLE_TIME){
+
+      speed_left = (lengthPerPulse / encoder_time_delta_left) * 1000000;
+
+      control_value_left = PID_left.calculate(abs(setpoint_left), speed_left);
+        
+      if (setpoint_left >= 0){  
+        analogWrite(PIN_WHEEL_LEFT_FORWARD, control_value_left);
+        analogWrite(PIN_WHEEL_LEFT_BACKWARD, 0);
+      }
+      else{
+        analogWrite(PIN_WHEEL_LEFT_FORWARD, 0);
+        analogWrite(PIN_WHEEL_LEFT_BACKWARD, control_value_left);
+      }
+      
+      time_last_cycle_left = time_now_left;
+      time_delta_left = 0;
+    }
+  }
+  else{
+    time_delta_right = 0;
+  }
+
+  // run right controller
+  if (enable_controller_right){
+
+    time_now_right = millis();
+    time_delta_right = time_now_right - time_last_cycle_right;
+
+    if (time_delta_right >= CYCLE_TIME){
 
       speed_left = (lengthPerPulse / encoder_time_delta_left) * 1000000;
       speed_right = (lengthPerPulse / encoder_time_delta_right) * 1000000;
@@ -195,31 +228,13 @@ void loop(){
         analogWrite(PIN_WHEEL_RIGHT_FORWARD, 0);
         analogWrite(PIN_WHEEL_RIGHT_BACKWARD, control_value_right);
       }
-    
-/* use to setup PID
-      debug(" set_r: ");
-      debug(setpoint_right);
-      debug(" set_l: ");    
-      debug(setpoint_left);
-      
-      debug(" cmd_r: ");
-      debug(control_value_right);
-      debug(" cmd_l: ");
-      debug(control_value_left);
-    
-      debug(" spe_r: ");
-      debug(speed_right);
-      debug(" spe_l: ");
-      debugln(speed_left);
-*/
 
-      time_last_cycle = time_now;
-      time_delta = 0;
+      time_last_cycle_right = time_now_right;
+      time_delta_right = 0;
     }
   }
-
   else{
-    time_delta = 0;
+    time_delta_right = 0;
   }
 
   // process commands 
@@ -234,16 +249,8 @@ void loop(){
 
       case CMD_GET_ENCODER_PULSES:{
         debug("(" + String(CMD_GET_ENCODER_PULSES) + ") ");
-        Serial.println(String(encoder_pulses_left) + " " + String(encoder_pulses_right));
-        break;
-      }
-
-      case CMD_SETPOINT_WHEELS:{
-        setpoint_left = value.substring(0, value.indexOf(' ')).toDouble();
-        setpoint_right = value.substring(value.indexOf(' ')+1).toDouble();
-        
-        debugln("(" + String(CMD_SETPOINT_WHEELS) + ")" + " setpoint left: "  + String(setpoint_left,3) 
-                                                        + " setpoint right: " + String(setpoint_right,3));
+        Serial.println(String(speed_right) + " " + String(speed_left));
+        //Serial.println(String(encoder_pulses_left) + " " + String(encoder_pulses_right));
         break;
       }
 
@@ -255,18 +262,26 @@ void loop(){
         break;
       }
 
-      case CMD_ENABLE_WHEELS:{
-        enable_controller = (value == "true");
-        if (enable_controller){
+      case CMD_ENABLE_WHEEL_LEFT:{
+        enable_controller_left = (value == "true");
+        if (enable_controller_left){
           digitalWrite(PIN_WHEEL_LEFT_ENABLE, HIGH);
-          digitalWrite(PIN_WHEEL_RIGHT_ENABLE, HIGH);
         }
         else{
           digitalWrite(PIN_WHEEL_LEFT_ENABLE, LOW);
+        }
+      }
+      
+      case CMD_ENABLE_WHEEL_RIGHT:{
+        enable_controller_right = (value == "true");
+        if (enable_controller_right){
+          digitalWrite(PIN_WHEEL_RIGHT_ENABLE, HIGH);
+        }
+        else{
           digitalWrite(PIN_WHEEL_RIGHT_ENABLE, LOW);
         }
 
-        debugln("(" + String(CMD_ENABLE_WHEELS) + ")" + " wheels: " + (String((enable_controller) ? "true" : "false")));
+        debugln("(" + String(CMD_ENABLE_WHEEL_RIGHT) + ")" + " wheels: " + (String((enable_controller_right) ? "true" : "false")));
         break;
       }
 

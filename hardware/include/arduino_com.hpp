@@ -9,9 +9,9 @@
 // motor commands
 #define CMD_SETPOINT_LEFT             1   // [mm/s]
 #define CMD_SETPOINT_RIGHT            2   // [mm/s]
-#define CMD_SETPOINT_WHEELS           3   // [left,right]
-#define CMD_SETPOINT_VACUUM           4   // [0-255]
-#define CMD_ENABLE_WHEELS             5   // [true/false]
+#define CMD_SETPOINT_VACUUM           3   // [0-255]
+#define CMD_ENABLE_WHEEL_LEFT         4   // [true/false]
+#define CMD_ENABLE_WHEEL_RIGHT        5   // [true/false]
 #define CMD_ENABLE_SWEEPER_LEFT       6   // [true/false]
 #define CMD_ENABLE_SWEEPER_RIGHT      7   // [true/false]
 #define CMD_ENABLE_VACUUM             8   // [true/false]
@@ -47,10 +47,15 @@ public:
     void read_encoder_values(double &counts_left, double &counts_right);
     void reset_encoder_values();
     
-    // wheels
-    void enable_wheels();
-    void disable_wheels();
-    void set_wheel_speeds(int speed_left, int speed_right);
+    // left wheel
+    void enable_wheel_left();
+    void disable_wheel_left();
+    void set_wheel_speed_left(int speed_left);
+
+    // right wheel
+    void enable_wheel_right();
+    void disable_wheel_right();
+    void set_wheel_speed_right(int speed_right);
 
     // vacuum
     void enable_vacuum();
@@ -81,6 +86,5 @@ public:
     // limit switches
     void read_limit_switches(bool &limit_switch_left, bool &limit_switch_right);
 };
-
 
 #endif
