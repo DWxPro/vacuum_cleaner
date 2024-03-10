@@ -249,8 +249,7 @@ void loop(){
 
       case CMD_GET_ENCODER_PULSES:{
         debug("(" + String(CMD_GET_ENCODER_PULSES) + ") ");
-        Serial.println(String(speed_right) + " " + String(speed_left));
-        //Serial.println(String(encoder_pulses_left) + " " + String(encoder_pulses_right));
+        Serial.println(String(encoder_pulses_left) + " " + String(encoder_pulses_right));
         break;
       }
 
