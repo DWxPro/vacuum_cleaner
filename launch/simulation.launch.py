@@ -7,38 +7,23 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.actions import DeclareLaunchArgument
 from launch import LaunchDescription
-
-
-from ament_index_python.packages import get_package_share_directory
-from launch.actions import (EmitEvent, LogInfo,RegisterEventHandler)
-from launch.conditions import IfCondition
-from launch.events import matches_action
-from launch.substitutions import (AndSubstitution, LaunchConfiguration,
-                                  NotSubstitution)
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import LifecycleNode
-from launch_ros.event_handlers import OnStateTransition
-from launch_ros.events.lifecycle import ChangeState
-from lifecycle_msgs.msg import Transition
-
+from launch_ros.descriptions import ParameterFile
 from nav2_common.launch import RewrittenYaml
-from launch_ros.descriptions import ComposableNode, ParameterFile
-
-from launch.substitutions import TextSubstitution
-from launch.actions import LogInfo
-
-import yaml
+from launch_ros.descriptions import ParameterFile
 
 def generate_launch_description():
 
     use_sim_time        = True
     package_name        = 'vacuum_cleaner'
     urdf_name           = 'robot.urdf.xacro'
-    world_file_name     = 'my_world.world'
-    slam_file_name      = 'slam.yaml'
+    world_file_name     = 'home1.world'
     rviz_file_name      = 'presettings.rviz'
     joystick_file_name  = 'joystick.yaml'
     twist_mux_file_name = 'twist_mux.yaml'
-    map_file_name       = "my_map.yaml"
+    slam_file_name      = 'slam.yaml'
+    map_file_name       = "Home1.yaml"
     nav2_file_name      = 'nav2.yaml'
 
     path_package_share      = FindPackageShare(package=package_name).find(package_name)
@@ -272,19 +257,22 @@ def generate_launch_description():
     # create launch description
     ld = LaunchDescription()
     
-    ld.add_action(robot_state_publisher_node)
     ld.add_action(declare_gazebo_world)
     ld.add_action(gazebo_node)
     ld.add_action(spawn_entity_node)
-    ld.add_action(diffbot_base_controller_spawner)
-    ld.add_action(joint_state_broadcaster_spawner)
-    ld.add_action(sweeper_controller_spawner)
-    #ld.add_action(declare_slam_parameters)
-    #ld.add_action(slam_toolbox_node)
     ld.add_action(rviz_node)
     ld.add_action(twist_mux_node)
     ld.add_action(joystick_node)
     ld.add_action(teleop_twist_joy_node) 
+
+    ld.add_action(robot_state_publisher_node)
+    ld.add_action(diffbot_base_controller_spawner)
+    ld.add_action(joint_state_broadcaster_spawner)
+    ld.add_action(sweeper_controller_spawner)
+
+    #ld.add_action(declare_slam_parameters)
+    #ld.add_action(slam_toolbox_node)
+
     ld.add_action(nav2_lifecycle_manager_node)
     ld.add_action(nav2_map_server_node)
     ld.add_action(nav2_amcl_node)
@@ -297,5 +285,3 @@ def generate_launch_description():
     ld.add_action(nav2_velocity_smoother_node)
 
     return ld
-
-
