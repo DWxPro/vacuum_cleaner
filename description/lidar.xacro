@@ -3,7 +3,7 @@
 
     <xacro:property name="lidar_radius" value="0.035"/>
     <xacro:property name="lidar_thickness" value="0.024"/>
-    <xacro:property name="lidar_mass" value="0.100"/>
+    <xacro:property name="lidar_mass" value="0.170"/>
     <xacro:property name="lidar_color" value="blue"/>
 
     <xacro:property name="lidar_offset_z" value="0.046 "/>
