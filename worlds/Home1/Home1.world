@@ -90,13 +90,13 @@
       <elevation>0</elevation>
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
-    <model name='home1'>
+    <model name='Home1'>
       <link name='link'>
         <collision name='collision'>
           <geometry>
             <mesh>
-              <scale>10 10 10</scale>
-              <uri>model://home1/meshes/home1.dae</uri>
+              <scale>1 1 1</scale>
+              <uri>model://Home1/meshes/Home1.dae</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -116,8 +116,8 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <scale>10 10 10</scale>
-              <uri>model://home1/meshes/home1.dae</uri>
+              <scale>1 1 1</scale>
+              <uri>model://Home1/meshes/Home1.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -154,14 +154,14 @@
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
-      <model name='home1'>
-        <pose>-6.46941 5.64784 -0.050008 2e-06 -1e-05 -1e-06</pose>
+      <model name='Home1'>
+        <pose>-0.053866 -0.00841 -0.000153 1e-06 2e-06 -4e-05</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-6.46941 5.64784 -0.050008 2e-06 -1e-05 -1e-06</pose>
+          <pose>-0.053866 -0.00841 -0.000153 1e-06 2e-06 -4e-05</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>-0.005197 0.576672 -7.4408 -1.02529 0.052132 0.012679</acceleration>
-          <wrench>-0.005197 0.576672 -7.4408 0 -0 0</wrench>
+          <acceleration>-0.000485 -7.8e-05 -9.07372 2.25935 -0.303823 -3.14159</acceleration>
+          <wrench>-0.000485 -7.8e-05 -9.07372 0 -0 0</wrench>
         </link>
       </model>
       <light name='sun'>

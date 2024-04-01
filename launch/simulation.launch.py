@@ -18,7 +18,7 @@ def generate_launch_description():
     use_sim_time        = True
     package_name        = 'vacuum_cleaner'
     urdf_name           = 'robot.urdf.xacro'
-    world_file_name     = 'home1.world'
+    world_file_name     = 'Home1/Home1.world'
     rviz_file_name      = 'presettings.rviz'
     joystick_file_name  = 'joystick.yaml'
     twist_mux_file_name = 'twist_mux.yaml'

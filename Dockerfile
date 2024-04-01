@@ -1,10 +1,13 @@
-#FROM osrf/ros:humble-desktop-full
 FROM ubuntu:jammy
+SHELL ["/bin/bash", "-c"]
 
-# update base image
+# < --- UPDATE --- >
+
 RUN apt-get update -y \
  && apt-get upgrade -y \
  && rm -rf /var/lib/apt/lists/*
+
+# < --- SETTINGS --- >
 
 # user settings
 ARG USERNAME=ros
@@ -12,7 +15,7 @@ ARG USER_UID=1000
 ARG USER_GID=1000
 
 # ros2 workspace
-ARG ros2_ws=/home/$USERNAME/ros2_ws/
+ARG PACKAGE_NAME=vacuum_cleaner
 
 # create non-root user
 RUN groupadd --gid $USER_GID $USERNAME \
@@ -27,20 +30,31 @@ RUN apt-get update \
  && chmod 0440 /etc/sudoers.d/$USERNAME \
  && rm -rf /var/lib/apt/lists/*
 
-# allow access to serial devices
-RUN usermod -aG dialout $USERNAME
-
-
+# use noninteratvie mode for apt 
 ARG DEBIAN_FRONTEND=noninteractive
 
 # set timezone 
 ENV TZ=Europe/Berlin
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# allow access to serial devices
+RUN usermod -aG dialout $USERNAME
 
-# ros2 workspace
-#COPY config/ $ros2_ws/src/config/
-#use this after developing. In the meantime use bind mount
+# add lines to .bashrc
+USER $USERNAME
+RUN echo -e '\n\n' '### <---- own stuff ----> ### \n' \
+            'source /opt/ros/humble/setup.bash \n' \
+            'source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash \n' \
+            'source /home/ros/ros2_ws/install/setup.bash \n' \
+        >> ~/.bashrc
+USER root
+RUN echo -e '\n\n' '### <---- own stuff ----> ### \n' \
+            'source /opt/ros/humble/setup.bash \n' \
+            'source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash \n' \
+            'source /home/ros/ros2_ws/install/setup.bash \n' \
+        >> ~/.bashrc
+
+# < --- INSTALLATION --- >
 
 # ros2
 RUN apt-get update \
@@ -114,18 +128,23 @@ RUN apt-get update \
  && apt-get install -y ros-humble-twist-mux \
  && rm -rf /var/lib/apt/lists/*
 
+# < --- WORKSPACE --- >
 
-# add lines to .bashrc
-USER ros
-RUN echo '\n\n' '### <---- own stuff ----> ### \n' \
-         'source /opt/ros/humble/setup.bash \n' \
-         'source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash \n' \
-         'source /home/ros/ros2_ws/install/setup.bash \n' \
-        >> ~/.bashrc
+USER $USERNAME 
+
+# gezebo world model
+RUN mkdir -p /home/$USERNAME/.gazebo/models/Home1
+COPY ./worlds/Home1 /home/$USERNAME/.gazebo/models/Home1
+
+# ros2 workspace
+RUN mkdir -p /home/$USERNAME/ros2_ws/src/$PACKAGE_NAME
+COPY . /home/$USERNAME/ros2_ws/src/$PACKAGE_NAME
+
 USER root
-RUN echo '\n\n' '### <---- own stuff ----> ### \n' \
-         'source /opt/ros/humble/setup.bash \n' \
-         'source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash \n' \
-         'source /home/ros/ros2_ws/install/setup.bash \n' \
-        >> ~/.bashrc
 
+# < --- BUILD --- >
+
+WORKDIR /home/$USERNAME/ros2_ws
+RUN source /opt/ros/humble/setup.sh && colcon build
+
+USER $USERNAME

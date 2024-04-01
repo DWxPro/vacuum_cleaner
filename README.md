@@ -171,3 +171,9 @@ conan iconan install ../BehaviorTree.CPP --output-folder=. --build=missing
 cmake ../BehaviorTree.CPP -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
 cmake --build . --parallel
 ```
+
+### RUN Dockerfile
+
+```bash
+docker run -it --name vacuum_cleaner --user ros --network=host --ipc=host -v <path to folder>/vacuum_cleaner/:/home/ros/ros2_ws/src/vacuum_cleaner -v /tmp/.X11-unix:/tmp/.X11-unix:rw --env=DISPLAY -v /dev:/dev --device-cgroup-rule="c *:* rmw" <image name>
+```
