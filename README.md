@@ -100,7 +100,7 @@ git clone https://github.com/Fields2Cover/Fields2Cover.git
 
 cd Fields2Cover
 mkdir -p build
-cd build;
+cd build
 cmake -DBUILD_PYTHON=ON ..
 make -j$(nproc)
 sudo make install
@@ -172,7 +172,7 @@ cmake ../BehaviorTree.CPP -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
 cmake --build . --parallel
 ```
 
-### RUN Dockerfile
+## Run Dockerfile
 
 ```bash
 docker run -it --name vacuum_cleaner --user ros --network=host --ipc=host -v <path to folder>/vacuum_cleaner/:/home/ros/ros2_ws/src/vacuum_cleaner -v /tmp/.X11-unix:/tmp/.X11-unix:rw --env=DISPLAY -v /dev:/dev --device-cgroup-rule="c *:* rmw" <image name>
