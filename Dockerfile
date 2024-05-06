@@ -15,7 +15,9 @@ ARG USER_UID=1000
 ARG USER_GID=1000
 
 # ros2 workspace
-ARG PACKAGE_NAME=vacuum_cleaner
+ENV PACKAGE_NAME=vacuum_cleaner
+ENV ROS_DISTRO=iron
+ARG ros2_ws=/home/$USERNAME/ros2_ws
 
 # create non-root user
 RUN groupadd --gid $USER_GID $USERNAME \
@@ -43,16 +45,19 @@ RUN usermod -aG dialout $USERNAME
 # add lines to .bashrc
 USER $USERNAME
 RUN echo -e '\n\n' '### <---- own stuff ----> ### \n' \
-            'source /opt/ros/iron/setup.bash \n' \
+            "source /opt/ros/$ROS_DISTRO/setup.bash \n" \
             'source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash \n' \
             'source /home/ros/ros2_ws/install/setup.bash \n' \
         >> ~/.bashrc
 USER root
 RUN echo -e '\n\n' '### <---- own stuff ----> ### \n' \
-            'source /opt/ros/iron/setup.bash \n' \
+            "source /opt/ros/$ROS_DISTRO/setup.bash \n" \
             'source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash \n' \
             'source /home/ros/ros2_ws/install/setup.bash \n' \
         >> ~/.bashrc
+
+# create workspace
+RUN mkdir -p $ros2_ws
 
 # < --- INSTALLATION --- >
 
@@ -61,6 +66,11 @@ RUN apt-get update \
  && apt-get install -y nano \
  && rm -rf /var/lib/apt/lists/*
  
+ # twist-mux
+RUN apt-get update \
+ && apt-get install -y git \
+ && rm -rf /var/lib/apt/lists/*
+
 # ros2
 RUN apt-get update \
  && apt-get install -y software-properties-common \
@@ -69,14 +79,14 @@ RUN apt-get update \
 RUN add-apt-repository universe
 
 RUN apt-get update \
- &&  apt-get install -y curl \
+ && apt-get install -y curl \
  && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
 
 RUN apt-get update \
- && apt install -y ros-iron-desktop \
+ && apt install -y ros-$ROS_DISTRO-desktop \
  && rm -rf /var/lib/apt/lists/*
 
 # colcon
@@ -86,8 +96,8 @@ RUN apt-get update \
 
 # gazebo
 RUN apt-get update \
- && apt-get install -y ros-iron-gazebo-ros-pkgs \
-    ros-iron-gazebo-ros2-control \
+ && apt-get install -y ros-$ROS_DISTRO-gazebo-ros-pkgs \
+    ros-$ROS_DISTRO-gazebo-ros2-control \
  && rm -rf /var/lib/apt/lists/*
 
 #joystick
@@ -103,67 +113,58 @@ RUN apt-get update \
 
 # xacro
 RUN apt-get update \
- && apt-get install -y ros-iron-xacro \
+ && apt-get install -y ros-$ROS_DISTRO-xacro \
  && rm -rf /var/lib/apt/lists/*
 
 # ros2-control
 RUN apt-get update \
- && apt-get install -y ros-iron-ros2-control \
-    ros-iron-ros2-controllers \
+ && apt-get install -y ros-$ROS_DISTRO-ros2-control \
+    ros-$ROS_DISTRO-ros2-controllers \
  && rm -rf /var/lib/apt/lists/*
 
 # slam
 RUN apt-get update \
- && apt-get install -y ros-iron-slam-toolbox \
+ && apt-get install -y ros-$ROS_DISTRO-slam-toolbox \
  && rm -rf /var/lib/apt/lists/*
 
 # nav2
 RUN apt-get update \
- && apt-get install -y ros-iron-navigation2 \
-    ros-iron-nav2-bringup \
+ && apt-get install -y ros-$ROS_DISTRO-navigation2 \
+    ros-$ROS_DISTRO-nav2-bringup \
+    ros-$ROS_DISTRO-turtlebot3-gazebo \
  && rm -rf /var/lib/apt/lists/*
 
 # twist-mux
 RUN apt-get update \
- && apt-get install -y ros-iron-twist-mux \
+ && apt-get install -y ros-$ROS_DISTRO-twist-mux \
  && rm -rf /var/lib/apt/lists/*
 
-# Fields2Cover
+# opennav_coverage
 RUN apt-get update \
- && apt-get install -y --no-install-recommends software-properties-common \
- && apt-get install -y --no-install-recommends build-essential ca-certificates cmake \
-    doxygen g++ git libeigen3-dev libgdal-dev libpython3-dev python3 python3-pip \
-    python3-matplotlib python3-tk lcov libgtest-dev libtbb-dev swig libgeos-dev \
+ && apt-get install -y ros-$ROS_DISTRO-fields2cover \
  && rm -rf /var/lib/apt/lists/*
-RUN python3 -m pip install gcovr
 
-WORKDIR /home/$USERNAME/
-RUN git clone https://github.com/Fields2Cover/Fields2Cover.git
-
-WORKDIR /home/$USERNAME/Fields2Cover
-RUN mkdir -p build
-WORKDIR /home/$USERNAME/Fields2Cover/build
-RUN cmake -DBUILD_PYTHON=ON .. \
- && make -j$(nproc) \
- && make install
+WORKDIR $ros2_ws/src
+RUN git clone https://github.com/open-navigation/opennav_coverage.git -b $ROS_DISTRO \
+ && sed -i "s|find_package(Fields2Cover REQUIRED)|find_package(Fields2Cover REQUIRED HINTS \"/opt/ros/$ROS_DISTRO/cmake\")|g" $ros2_ws/src/opennav_coverage/opennav_coverage/CMakeLists.txt \
+ && sed -i "s|find_package(Fields2Cover REQUIRED)|find_package(Fields2Cover REQUIRED HINTS \"/opt/ros/$ROS_DISTRO/cmake\")|g" $ros2_ws/src/opennav_coverage/opennav_row_coverage/CMakeLists.txt
 
 # < --- WORKSPACE --- >
-
-USER $USERNAME 
 
 # gezebo world model
 RUN mkdir -p /home/$USERNAME/.gazebo/models/Home1
 COPY ./worlds/Home1 /home/$USERNAME/.gazebo/models/Home1
 
 # ros2 workspace
-RUN mkdir -p /home/$USERNAME/ros2_ws/src/$PACKAGE_NAME
-COPY . /home/$USERNAME/ros2_ws/src/$PACKAGE_NAME
-
-USER root
+RUN mkdir -p $ros2_ws/src/$PACKAGE_NAME
+COPY . $ros2_ws/src/$PACKAGE_NAME
 
 # < --- BUILD --- >
 
-WORKDIR /home/$USERNAME/ros2_ws
-RUN source /opt/ros/iron/setup.sh && colcon build
+WORKDIR $ros2_ws
+RUN source /opt/ros/$ROS_DISTRO/setup.sh \
+ && colcon build --symlink-install\
+ && ldconfig
 
-USER $USERNAME
+# < --- PERMISSIONS --- >
+RUN chown -R $USERNAME:$USER_GID /home/$USERNAME
