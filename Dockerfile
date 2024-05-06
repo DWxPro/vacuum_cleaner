@@ -16,7 +16,7 @@ ARG USER_GID=1000
 
 # ros2 workspace
 ENV PACKAGE_NAME=vacuum_cleaner
-ENV ROS_DISTRO=iron
+ENV ROS_DISTRO=humble
 ARG ros2_ws=/home/$USERNAME/ros2_ws
 
 # create non-root user
