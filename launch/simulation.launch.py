@@ -12,18 +12,24 @@ from launch_ros.substitutions import FindPackageShare
 from launch.event_handlers import OnExecutionComplete, OnProcessExit, OnProcessIO, OnProcessStart, OnShutdown
 
 
+from launch_ros.descriptions import ComposableNode, ParameterFile
+from nav2_common.launch import RewrittenYaml
+
+
 def generate_launch_description():
 
-    use_sim_time        = True
-    package_name        = 'vacuum_cleaner'
-    urdf_name           = 'robot.urdf.xacro'
-    world_file_name     = 'Home1/Home1.world'
-    rviz_file_name      = 'presettings.rviz'
-    joystick_file_name  = 'joystick.yaml'
-    twist_mux_file_name = 'twist_mux.yaml'
-    slam_file_name      = 'slam.yaml'
-    map_file_name       = "Home1.yaml"
-    nav2_file_name      = 'nav2_params.yaml'
+    use_sim_time                = True
+    package_name                = 'vacuum_cleaner'
+    urdf_name                   = 'robot.urdf.xacro'
+    world_file_name             = 'Home1/Home1.world'
+    rviz_file_name              = 'presettings.rviz'
+    joystick_file_name          = 'joystick.yaml'
+    twist_mux_file_name         = 'twist_mux.yaml'
+    slam_file_name              = 'slam.yaml'
+    map_file_name               = "Home1.yaml"
+    nav2_file_name              = 'nav2.yaml'
+    BT_through_pose_file_name   = '/home/ros/ros2_ws/src/vacuum_cleaner/behavior_trees/navigate_through_poses.xml'
+    BT_to_pose_file_name        = '/home/ros/ros2_ws/src/vacuum_cleaner/behavior_trees/navigate_to_pose.xml'
 
     path_package_share      = FindPackageShare(package=package_name).find(package_name)
     path_gazebo_ros_share   = FindPackageShare(package='gazebo_ros').find('gazebo_ros')
@@ -38,6 +44,18 @@ def generate_launch_description():
     world_settings      = os.path.join(path_package_share, 'worlds', world_file_name)
     map_file            = os.path.join(path_package_share,'maps',map_file_name)
     nav2_settings       = os.path.join(path_package_share,'config',nav2_file_name)
+
+    param_substitutions = {'default_nav_through_poses_bt_xml': BT_through_pose_file_name,
+                           'default_nav_to_pose_bt_xml': BT_to_pose_file_name}
+
+    nav2_settings = ParameterFile(
+        RewrittenYaml(
+            source_file=nav2_settings,
+            param_rewrites=param_substitutions,
+            convert_types=True,
+        ),
+        allow_substs=True,
+    )
 
     # controller_manager
     # running inside gazebo
@@ -102,7 +120,7 @@ def generate_launch_description():
         package='nav2_lifecycle_manager',
         executable='lifecycle_manager',
         name='lifecycle_manager_localization',
-        output='screen', #???
+        output='screen',
         parameters=[{'use_sim_time': use_sim_time},
                     {'autostart': True},
                     {'node_names': ['map_server',

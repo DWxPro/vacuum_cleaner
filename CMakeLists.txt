@@ -60,7 +60,7 @@ target_link_libraries(vacuum_cleaner PUBLIC jsoncpp_lib)
 # which is appropriate when building the dll but not consuming it.
 target_compile_definitions(${PROJECT_NAME} PRIVATE "vacuum_cleaner_BUILDING_DLL")
 
-target_compile_options(vacuum_cleaner PUBLIC -ljsoncpp)
+#target_compile_options(vacuum_cleaner PUBLIC -ljsoncpp)
 
 # Exports a plugin description file for the hardware_interface.
 pluginlib_export_plugin_description_file(hardware_interface hardware.xml)
@@ -94,6 +94,10 @@ install(
 )
 install(
   DIRECTORY maps
+  DESTINATION share/vacuum_cleaner
+)
+install(
+  DIRECTORY behavior_trees
   DESTINATION share/vacuum_cleaner
 )
 install(TARGETS vacuum_cleaner
